@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+.title {
+  font-size: 3em;
+  font-weight: bold;
+  margin: auto 0;
+}
+.icon {
+  width: 4em;
+  height: 5em;
+  padding-bottom: 0.5em;
+  margin: 1em;
+}

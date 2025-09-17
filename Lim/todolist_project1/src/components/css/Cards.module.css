@@ -1,0 +1,23 @@
+.container {
+  box-sizing: border-box; /* padding, border 포함해서 크기 계산 */
+  max-width: 100%;
+  /* border: 2px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 1em #ccc; */
+}
+.card {
+  /* background-color: blue; */
+  padding: 1em;
+  text-align: left;
+  list-style: none;
+}
+.listText {
+  /* background-color: yellow; */
+  width: 300px;
+  font-size: 1.2em;
+}
+.deleteButton {
+  margin-right: 2em;
+  /* align-items: end; */
+  font-size: 1em;
+}

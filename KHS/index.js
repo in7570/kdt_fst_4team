@@ -24,52 +24,6 @@ form.addEventListener('submit', (event) => {
     createList();
 });
 
-listContainer.addEventListener('click', (event) => {
-    const target = event.target;
-    const actionTarget = target.closest('[data-action]');
-    
-    if(!actionTarget) return;
-    
-    const action = actionTarget.dataset.action;
-    const todoItem = actionTarget.closest('.todo-item');
-
-    switch(action) {
-        case 'check':
-            event.preventDefault();
-            checkItem(todoItem); // 체크박스 클릭
-            break;
-        case 'text':
-            openCloseSubText(todoItem); // 내용 클릭
-            break;
-        case 'delete':
-            event.preventDefault();
-            deleteItem(todoItem); // 삭제 버튼 클릭
-            break;
-    }
-});
-
-subListContainerButton.addEventListener('click', (event) => {
-    const target = event.target;
-    const actionTarget = target.closest('[data-action]');
-
-    if(!actionTarget) return;
-
-    const action = actionTarget.dataset.action;
-    const subListContainer = actionTarget.closest('.sub-list-container');
-
-    switch(action) {
-        case 'time':
-            setTimer(subListContainer);
-            break;
-        case 'text':
-            writeText(subListContainer);
-            break;
-        case 'tag':
-            setTag(subListContainer);
-            break;
-    }
-});
-
 // 리스트 생성
 // 중복 내용 추가 방지 기능 만들어도 재밌을듯
 // input을 db에 저장해놓고 추가할 때마다 순회해서 탐색하고 겹치면 alert
@@ -88,6 +42,40 @@ function createList() {
     todoInput.value = '';
 }
 
+listContainer.addEventListener('click', (event) => {
+    const target = event.target;
+    const actionTarget = target.closest('[data-action]');
+    
+    if(!actionTarget) return;
+    
+    const action = actionTarget.dataset.action;
+    const todoItem = actionTarget.closest('.todo-item');
+    const subListContainer = actionTarget.closest('.sub-list-container');
+
+    switch(action) {
+        case 'check':
+            event.preventDefault();
+            checkItem(todoItem); // 체크박스 클릭
+            break;
+        case 'details':
+            openCloseSubText(todoItem); // 내용 클릭
+            break;
+        case 'delete':
+            event.preventDefault();
+            deleteItem(todoItem); // 삭제 버튼 클릭
+            break;
+        case 'time':
+            setTimer(subListContainer);
+            break;
+        case 'text':
+            writeText(subListContainer);
+            break;
+        case 'tag':
+            setTag(subListContainer, actionTarget);
+            break;
+    }
+});
+
 // 체크박스 클릭
 function checkItem(todoItem) {
     const unCheckedIcon = todoItem.querySelector('.fa-square');
@@ -102,7 +90,7 @@ function checkItem(todoItem) {
     }, 100);
 }
 
-// 내용 클릭
+// 내용 클릭 -> details 사용으로 인해 필요 없어진 것 같음
 function openCloseSubText(todoItem) {
     return;
 }
@@ -115,6 +103,28 @@ function deleteItem(todoItem) {
     }, 300);
 }
 
+// subListContainerButton.addEventListener('click', (event) => {
+//     const target = event.target;
+//     const actionTarget = target.closest('[data-action]');
+
+//     if(!actionTarget) return;
+
+//     const action = actionTarget.dataset.action;
+//     const subListContainer = actionTarget.closest('.sub-list-container');
+
+//     switch(action) {
+//         case 'time':
+//             setTimer(subListContainer);
+//             break;
+//         case 'text':
+//             writeText(subListContainer);
+//             break;
+//         case 'tag':
+//             setTag(subListContainer, actionTarget);
+//             break;
+//     }
+// });
+
 // 마감 기한 클릭
 function setTimer(subListContainer) {
     return;
@@ -126,6 +136,22 @@ function writeText(subListContainer) {
 }
 
 // 태그 선택 클릭
-function setTag(subListContainer) {
+function setTag(subListContainer, actionTarget) {
+    // 리스트 색 바꿈
+    const tagList = actionTarget.nextElementSibling;
+    tagList.classList.toggle('hidden');
+    tagList.addEventListener('click', (e) => {
+        if(e.target.tagName !== 'BUTTON') return;
+        let color = 'bg-gray-200';
+        const parentList = subListContainer.closest('.todo-item');
+        const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby'];
+        parentList.classList.remove(...colorList);
+        const clickedColor = colorList.find((c) => e.target.classList.contains(c));
+        if(clickedColor) color = clickedColor;
+        parentList.classList.add(color);
+    });
+
+    // 태그 리스트에 저장 or 태그값 저장
+    // 사이드바 태그 클릭시 리스트에 있거나 값 같은 리스트만 보이게 설정
     return;
 }

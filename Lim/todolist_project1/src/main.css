@@ -9,10 +9,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* 7열.브라우저가 굵은 글씨(bold)나 기울임(italic) 스타일을 인위적으로 만들어내지 않도록 함.
-8열. 텍스트를 화면에 좀 더 읽기 쉽게 렌더링하라는 브라우저에게 주는 힌트.
-9열. (크롬, 사파리 등 Webkit 브라우저 전용) 폰트의 경계선을 부드럽게(안티앨리어싱) 처리해서 더 선명하고 깔끔하게 보이게 함.
-10열. (파이어폭스 브라우저, macOS 전용) 폰트의 안티앨리어싱을 색상 대신 회색조로 처리해서 깔끔하게 보이게 함.*/
 
 /* 라이트모드를 쓰면 이렇게 변화한다는 뜻 */
 @media (prefers-color-scheme: light) {

@@ -11,11 +11,6 @@
   max-width: 80%;
   margin-right: 1rem;
 }
-/* .input:focus {
-  outline: none;
-  border-color: #ccc;
-  box-shadow: 0 0 1em #ccc;
-} */
 
 button {
   width: 3em;
@@ -27,12 +22,3 @@ button {
 button:active {
   filter: drop-shadow(0 0 1em #ccc);
 }
-/* button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-} */
-/* 
-filter 속성(예: blur, brightness 등)이 변화할 때 
-0.3초 동안 부드럽게 애니메이션이 적용되고
-브라우저가 그 변화를 미리 예측해 최적화를 해준다는 뜻입니다. 
-*/

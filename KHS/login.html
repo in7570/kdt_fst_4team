@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <!-- Pretendard 폰트 CDN -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 임시로  CDN 사용, React 사용 후에는 따로 설치 예정-->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/3331d6bf42.js" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1871C2',       // 주요 색상
+                        'background': '#F8F9FA',    // 배경
+                        'sidebar': '#E9ECEF',       // 사이드바
+                        'edge': '#DEE2E6',          // 테두리
+                        'delete': '#E03131',        // 삭제/주의
+                        'text_basic': '#212529',    // 기본 텍스트
+                        'text_sub': '#868E96',      // 보조 텍스트
+                        'plus_btn': '#F1F3F5',      // 추가 버튼
+                        'plus': '#495057',          // 추가 버튼 아이콘
+                        'important': '#FFD8A8',     // 주제/중요
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-screen bg-background flex items-center justify-center font-sans">
+    <div class="w-full max-w-sm">
+        <!-- header -->
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-12">로그인</h1>
+        <!-- 입력 폼 -->
+        <form action="">
+            <div class="mb-4 flex items-center">
+                <label for="username" class="w-20 text-gray-700">아이디</label>
+                <input type="text" id="user-name" placeholder="아이디 입력" class="flex-1 rounded-md border border-gray-300 p-2 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500">
+            </div>
+            <div class="mb-6 flex items-center">
+                <label for="password" class="w-20 text-gray-700">비밀번호</label>
+                <div class="flex-1 relative">
+                    <input type="password" id="password" placeholder="비밀번호 입력" class="w-full rounded-md border border-gray-300 p-2 pr-8 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500">
+                    <i class="watch-pwd-open fa-solid fa-eye absolute top-1/2 right-3 -translate-y-1/2"></i>
+                    <i class="watch-pwd-close fa-solid fa-eye-slash hidden absolute top-1/2 right-3 -translate-y-1/2"></i>
+                </div>
+            </div>
+            <div class="mb-6">
+                <button type="submit" class="w-full justify-center rounded-md bg-gray-800 py-2.5 px-4 text-white hover:bg-gray-700">로그인</button>
+            </div>
+        </form>
+        <div class="text-center text-sm">
+            <a href="#" class="text-gray-600 hover:text-gray-800">회원가입</a>
+            <span class="mx-2 text-gray-400">|</span>
+            <a href="#" class="text-gray-600 hover:text-gray-800">비밀번호가 기억나지 않아요</a>
+        </div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>

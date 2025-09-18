@@ -1,23 +1,35 @@
 .container {
   box-sizing: border-box; /* padding, border 포함해서 크기 계산 */
   max-width: 100%;
-  /* border: 2px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 1em #ccc; */
 }
 .card {
   /* background-color: blue; */
-  padding: 1em;
+  padding-left: 0;
+  margin: 0;
+  padding: 0;
   text-align: left;
   list-style: none;
 }
+li {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0 1rem 0;
+  padding: 0.5em;
+  border: 3px solid #ccc;
+  border-radius: 5px;
+  transform: translateZ(0); /*GPU 가속 활성화 */
+}
 .listText {
-  /* background-color: yellow; */
-  width: 300px;
+  display: inline-block;
+  padding: 1em;
+  max-width: calc(100% - 7em);
   font-size: 1.2em;
+  /* background-color: yellow; */
 }
 .deleteButton {
-  margin-right: 2em;
-  /* align-items: end; */
+  align-items: center;
+  margin: 1em;
+  width: 3em;
+  height: 3em;
   font-size: 1em;
 }

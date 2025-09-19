@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO LIST</title>
+    <!-- Pretendard 폰트 CDN -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- 임시로  CDN 사용, React 사용 후에는 따로 설치 예정-->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/3331d6bf42.js" crossorigin="anonymous"></script>
+    <!-- CDN으로 색상 저장해서 사용-->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1871C2',       // 주요 색상
+                        'background': '#F8F9FA',    // 배경
+                        'sidebar': '#E9ECEF',       // 사이드바
+                        'edge': '#DEE2E6',          // 테두리
+                        'delete': '#E03131',        // 삭제/주의
+                        'text_basic': '#212529',    // 기본 텍스트
+                        'text_sub': '#868E96',      // 보조 텍스트
+                        'plus_btn': '#F1F3F5',      // 추가 버튼
+                        'plus': '#495057',          // 추가 버튼 아이콘
+                        'important': '#FFD8A8',     // 주제/중요
+                        'work': '#D0EBFF',          // 주제/업무
+                        'promise': '#FFF3BF',       // 주제/약속
+                        'study': '#D3F9D8',         // 주제/공부
+                        'exercise': '#C5F6FA',      // 주제/운동
+                        'hobby': '#E5DBFF',         // 주제/취미
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'custom': '0 4px 4px 0 rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        summary::-webkit-details-marker { /* Safari 브라우저용 사용자 정의 스타일 */
+            display: none;
+        }
+        summary::marker { /* 그 외 브라우저용 사용자 정의 스타일 */
+            display: none;
+            /* list-style-type: none; 으로도 가능 */
+        }
+    </style>
+</head>
+<body class="h-screen bg-background flex flex-col">
+    <!-- 헤더: 제목 + 프로필 -->
+    <header class="relative h-[60px] flex-shrink-0 bg-white px-4 flex items-center justify-center shadow-custom">
+        <h1 id="title" class="text-2xl font-bold text-text_basic">TO-DO LIST</h1>
+        <button id="profile-button" class="absolute right-4 h-[36px] w-[36px] rounded-full bg-background hover:bg-gray-100 hover:border hover:border-black-500">
+            <i class="fa-solid fa-user text-plus"></i>
+        </button>
+        <!-- 프로필 프레임 -->
+        <div id="profile-frame" class="hidden absolute top-full right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-edge z-10">
+            <ul class="p-2">
+                <li id="profile-name" class="p-2 rounded-md">홍길동 님</li>
+                <hr class="my-1">
+                <li class="logout-button p-2 text-delete hover:bg-gray-100 rounded-md cursor-pointer">로그아웃</li>
+            </ul>
+        </div>
+    </header>
+    <!-- 남은 공간을 다 채우도록 div로 감쌈-->
+    <div class="flex flex-grow">
+        <!-- 사이드바: 태그 -->
+        <aside class="w-[240px] flex-shrink-0 bg-sidebar p-4">
+            <!-- 태그 목록 -->
+            <!-- 리스트처럼 생성되게 만들기 -->
+            <!-- 태그 클릭하면 같은 태그의 리스트만 보이고 나머지는 hidden -->
+            <div id="tag-list">
+                <!-- 태그 목록 -->
+                <ul id="tag-container" class="flex flex-col gap-2 px-3 py-2">
+                    <!-- 전체, 오늘, 중요 태그 -->
+                    <li class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-edge p-1 transform transition-all duration-300 ease-in-out">
+                        <i class="fa-solid fa-inbox flex-shrink-0 border-4"></i>
+                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">전체</span>
+                    </li>
+                    <li class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-background p-1 transform transition-all duration-300 ease-in-out">
+                        <i class="fa-solid fa-calendar-week flex-shrink-0 border-4 border-background"></i>
+                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">오늘</span>
+                    </li>
+                    <li class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-important p-1 transform transition-all duration-300 ease-in-out">
+                        <i class="fa-solid fa-circle-exclamation flex-shrink-0 border-4 border-important"></i>
+                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">중요</span>
+                    </li>
+                    <div class="flex flex-row gap-20 pt-6 mb-4 justify-between">
+                        <h2 class="text-md font-bold">태그</h2>
+                        <button type="submit" id="btn-add" class="flex h-[24px] w-[24px] items-center justify-center rounded-full bg-plus_btn text-plus">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <!-- 태그 1개 -->
+                    <li class="tag-item hidden flex items-center gap-3 rounded-sm border border-gray-500 bg-gray-200 p-1 opacity-0 transform scale-95 transition-all duration-300 ease-in-out">
+                        <i class="fa-regular fa-square todo-checkbox flex-shrink-0 border-4"></i>
+                        <i class="fa-regular fa-square-check todo-checkbox hidden flex-shrink-0 border-4"></i>
+                        <span class="tag-text flex-grow decoration-transparent transition-colors duration-300 ease-in-out"></span>
+                        <i class="fa-solid fa-delete-left btn-delete flex-shrink-0"></i>
+                    </li>
+                    <!-- 임시 태그 -->
+                    <button class="tag-button border border-edge rounded-lg bg-sidebar px-4 focus:outline-none focus:ring-1 focus:ring-black">기본</button>
+                    <button class="tag-button border border-edge rounded-lg bg-work px-4 focus:outline-none focus:ring-1 focus:ring-black">업무</button>
+                    <button class="tag-button border border-edge rounded-lg bg-promise px-4 focus:outline-none focus:ring-1 focus:ring-black">약속</button>
+                    <button class="tag-button border border-edge rounded-lg bg-study px-4 focus:outline-none focus:ring-1 focus:ring-black">공부</button>
+                    <button class="tag-button border border-edge rounded-lg bg-exercise px-4 focus:outline-none focus:ring-1 focus:ring-black">운동</button>
+                    <button class="tag-button border border-edge rounded-lg bg-hobby px-4 focus:outline-none focus:ring-1 focus:ring-black">취미</button>
+                </ul>
+            </div>
+        </aside>
+        <!-- 입력 & 리스트 -->
+        <main id="container" class="flex-grow p-6 max-w-3xl">
+            <form id="todo-form" class="flex items-center gap-4 pb-5">
+                <input type="text" name="todo-input" id="todo-input" placeholder="새로운 할 일을 입력하세요." class="flex-grow rounded-md border border-edge p-2">
+                <button type="submit" id="btn-add" class="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-md bg-plus_btn text-plus">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </form>
+            <!-- todo list -->
+            <div id="todo-list">
+                <!-- 리스트 목록 -->
+                <ul id="list-container" class="flex flex-col gap-2">
+                    <!-- 리스트 템플릿 -->
+                    <li class="todo-item hidden flex gap-3 border border-gray-500 bg-gray-200 p-1 opacity-0 transform scale-95 transition-all duration-300 ease-in-out">
+                        <details class="flex-grow">
+                            <summary class="list-none flex gap-3 p-1 font-medium decoration-transparent transition-colors duration-300 ease-in-out">
+                                <i data-action="check" class="fa-regular fa-square todo-checkbox flex-shrink-0 border-4"></i>
+                                <i data-action="check" class="fa-regular fa-square-check todo-checkbox hidden flex-shrink-0 border-4"></i>
+                                <span data-action="details" class="todo-text flex-grow"></span>
+                                <span data-action="time" class="todo-time w-10">time</span>
+                                <i data-action="delete" class="fa-solid fa-xmark btn-delete flex-shrink-0"></i>
+                            </summary>
+                            <!-- 서브 리스트 템플릿 -->
+                            <div aria-hidden="true" class="border border-black"></div>
+                            <ul class="sub-list-container my-2">
+                                <li><button data-action="time" class="sub-list-container-button">마감 기한</button></li>
+                                <!-- 누르면 기한 정할 수 있는 화면 생성, 기한 정하면 리스트 앞쪽에 날짜 나옴, 날짜 있었다면 날짜 바뀜 -->
+                                <li><button data-action="text" class="sub-list-container-button">세부 내용</button></li>
+                                <li class="flex flex-row">
+                                    <button data-action="tag" class="sub-list-container-button pr-2">태그 선택</button>
+                                    <ul class="hidden flex gap-3 bg-background m-1 ring-1 ring-black rounded-md">
+                                        <button class="tag-button border border-edge rounded-lg bg-sidebar px-4 focus:outline-none focus:ring-1 focus:ring-black">기본</button>
+                                        <button class="tag-button border border-edge rounded-lg bg-work px-4 focus:outline-none focus:ring-1 focus:ring-black">업무</button>
+                                        <button class="tag-button border border-edge rounded-lg bg-promise px-4 focus:outline-none focus:ring-1 focus:ring-black">약속</button>
+                                        <button class="tag-button border border-edge rounded-lg bg-study px-4 focus:outline-none focus:ring-1 focus:ring-black">공부</button>
+                                        <button class="tag-button border border-edge rounded-lg bg-exercise px-4 focus:outline-none focus:ring-1 focus:ring-black">운동</button>
+                                        <button class="tag-button border border-edge rounded-lg bg-hobby px-4 focus:outline-none focus:ring-1 focus:ring-black">취미</button>
+                                    </ul>
+                                </li>
+                                <!-- 태그 선택 누르면 sidebar의 태그가 선택 태그로 바뀌고, 선택 태그를 누르면 그 태그를 가지게 됨-->
+                                <!-- 만약 지정된 태그가 있다면 sidebar 태그의 색을 진하게 표현해서 지정된 태그라는 걸 알리기 -->
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>

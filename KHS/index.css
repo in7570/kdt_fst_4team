@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .button-border {
+        @apply transform transition-all duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-black;
+    }
+}
+
+/* hidden 클래스가 다른 스타일에 의해 재정의되는 것을 방지 */
+.hidden {
+    display: none !important;
+}

@@ -7,10 +7,23 @@ const todoInput = document.getElementById('todo-input');
 const todoTemplate = document.querySelector('.todo-item');
 const form = document.getElementById('todo-form');
 const subListContainerButton = document.querySelector('.sub-list-container-button');
+const tagButtonContainer = document.getElementById('tag-button-container');
 
 // 프로필 버튼 클릭하면 사용자이름/(로그인/로그아웃) 프레임 토글
 profileButton.addEventListener('click', (event) => {
     profileFrame.classList.toggle('hidden');
+});
+
+tagButtonContainer.addEventListener('click', (event) => {
+    if(event.target.tagName !== 'BUTTON') return;
+    const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
+    const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby'];
+    const clickedColor = colorList.find((c) => event.target.classList.contains(c));
+    //console.log(`event.target.tagName:${event.target.tagName}, clickedColor:${clickedColor}`);
+    //console.log(todoListAll);
+    todoListAll.forEach((e) => {
+        e.classList.contains(clickedColor) ? e.classList.remove('hidden') : e.classList.add('hidden');
+    });
 });
 
 

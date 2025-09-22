@@ -65,13 +65,13 @@ listContainer.addEventListener('click', (event) => {
             deleteItem(todoItem); // 삭제 버튼 클릭
             break;
         case 'time':
-            setTimer(subListContainer);
+            setTimer(subListContainer); // 마감 기한 버튼 클릭
             break;
         case 'text':
-            writeText(subListContainer);
+            writeText(subListContainer); // 세부 내용 버튼 클릭
             break;
         case 'tag':
-            setTag(subListContainer, actionTarget);
+            setTag(subListContainer, actionTarget); // 태그 선택 버튼 클릭
             break;
     }
 });
@@ -102,28 +102,6 @@ function deleteItem(todoItem) {
         todoItem.remove();
     }, 300);
 }
-
-// subListContainerButton.addEventListener('click', (event) => {
-//     const target = event.target;
-//     const actionTarget = target.closest('[data-action]');
-
-//     if(!actionTarget) return;
-
-//     const action = actionTarget.dataset.action;
-//     const subListContainer = actionTarget.closest('.sub-list-container');
-
-//     switch(action) {
-//         case 'time':
-//             setTimer(subListContainer);
-//             break;
-//         case 'text':
-//             writeText(subListContainer);
-//             break;
-//         case 'tag':
-//             setTag(subListContainer, actionTarget);
-//             break;
-//     }
-// });
 
 // 마감 기한 클릭
 function setTimer(subListContainer) {

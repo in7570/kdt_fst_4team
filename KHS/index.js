@@ -14,13 +14,12 @@ profileButton.addEventListener('click', (event) => {
     profileFrame.classList.toggle('hidden');
 });
 
+// 사이드바 태그 버튼 눌러 일치하는 리스트만 보임
 tagButtonContainer.addEventListener('click', (event) => {
     if(event.target.tagName !== 'BUTTON') return;
     const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
     const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby'];
     const clickedColor = colorList.find((c) => event.target.classList.contains(c));
-    //console.log(`event.target.tagName:${event.target.tagName}, clickedColor:${clickedColor}`);
-    //console.log(todoListAll);
     todoListAll.forEach((e) => {
         e.classList.contains(clickedColor) ? e.classList.remove('hidden') : e.classList.add('hidden');
     });

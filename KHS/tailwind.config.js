@@ -21,6 +21,14 @@ module.exports = {
                 'study': '#D3F9D8',         // 주제/공부
                 'exercise': '#C5F6FA',      // 주제/운동
                 'hobby': '#E5DBFF',         // 주제/취미
+                'edge-dark': '#C7CED1',
+                'background-dark': '#E9ECEF',
+                'important-dark': '#FCAE73',
+                'work-dark': '#A8D7FF',
+                'promise-dark': '#FDE490',
+                'study-dark': '#B3EBC0',
+                'exercise-dark': '#A2E8F0',
+                'hobby-dark': '#D1C2FF',
             },
             fontFamily: {
                 sans: ['Pretendard', 'sans-serif'],

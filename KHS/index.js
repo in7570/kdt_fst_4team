@@ -18,12 +18,45 @@ profileButton.addEventListener('click', (event) => {
 tagButtonContainer.addEventListener('click', (event) => {
     if(event.target.tagName !== 'BUTTON') return;
     const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
-    const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby'];
+    const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby', 'bg-gray-400', 'bg-work-dark', 'bg-promise-dark', 'bg-study-dark', 'bg-exercise-dark', 'bg-hobby-dark'];
     const clickedColor = colorList.find((c) => event.target.classList.contains(c));
+
+    // 1. focus 상태의 태그를 클릭한 경우(== 이미 클릭된 태그를 한 번 더 클릭한 경우): 아무 일도 일어나지 않음
+    if(isGray400(clickedColor) || isDark(clickedColor)) return;
+
+    // 2. focus 상태가 아닌 태그를 클릭한 경우: 그 전 focus 태그의 배경색을 기본으로 돌리고 focus 태그의 배경색을 dark로 만들기
+    // 클릭 이벤트 핸들러가 실행되는 시점에는 focus 상태가 적용되기 전이라 focus 상태인 태그는 그 전 태그 하나가 유일함
+    const selected = Array.from(tagButtonContainer.children).find((c) => c.classList.contains('selected'));
+
+    if(selected) {
+        const selectedColor = colorList.find((c) => selected.classList.contains(c));
+        if(selectedColor) {
+            const selectedChangeColor = isGray400(selectedColor) ? selectedColor.replace('400', '200') : selectedColor.slice(0, -5); // -400인 경우 slice(-4), dark 색상인 경우 slice(-5)
+            selected.classList.remove(selectedColor, 'selected');
+            selected.classList.add(selectedChangeColor);
+        }
+    }
+
+    const changeColor = isGray200(clickedColor) ? clickedColor.replace('200', '400') : clickedColor + '-dark'; // -200인 경우 replace(2 -> 4), 나머지는 + '-dark'
+    event.target.classList.remove(clickedColor);
+    event.target.classList.add(changeColor, 'selected');
+
     todoListAll.forEach((e) => {
         e.classList.contains(clickedColor) ? e.classList.remove('hidden') : e.classList.add('hidden');
     });
 });
+
+function isGray200(color) { // isGray200: bg-gray-200 인지 확인
+    return /200$/.test(color);
+}
+
+function isGray400(color) { // isGray: bg-gray-400 인지 확인
+    return /400$/.test(color);
+}
+
+function isDark(color) { // isDark: dark 계열인지 확인
+    return /-dark$/.test(color);
+}
 
 
 

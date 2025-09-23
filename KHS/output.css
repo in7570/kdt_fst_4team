@@ -888,9 +888,19 @@ video {
   background-color: rgb(197 246 250 / var(--tw-bg-opacity, 1));
 }
 
+.bg-exercise-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(162 232 240 / var(--tw-bg-opacity, 1));
+}
+
 .bg-gray-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
+}
+
+.bg-gray-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity, 1));
 }
 
 .bg-gray-800 {
@@ -901,6 +911,11 @@ video {
 .bg-hobby {
   --tw-bg-opacity: 1;
   background-color: rgb(229 219 255 / var(--tw-bg-opacity, 1));
+}
+
+.bg-hobby-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 194 255 / var(--tw-bg-opacity, 1));
 }
 
 .bg-important {
@@ -918,6 +933,11 @@ video {
   background-color: rgb(255 243 191 / var(--tw-bg-opacity, 1));
 }
 
+.bg-promise-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 228 144 / var(--tw-bg-opacity, 1));
+}
+
 .bg-sidebar {
   --tw-bg-opacity: 1;
   background-color: rgb(233 236 239 / var(--tw-bg-opacity, 1));
@@ -928,6 +948,11 @@ video {
   background-color: rgb(211 249 216 / var(--tw-bg-opacity, 1));
 }
 
+.bg-study-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(179 235 192 / var(--tw-bg-opacity, 1));
+}
+
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
@@ -936,6 +961,11 @@ video {
 .bg-work {
   --tw-bg-opacity: 1;
   background-color: rgb(208 235 255 / var(--tw-bg-opacity, 1));
+}
+
+.bg-work-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(168 215 255 / var(--tw-bg-opacity, 1));
 }
 
 .p-1 {

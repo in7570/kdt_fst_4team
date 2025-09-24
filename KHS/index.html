@@ -47,17 +47,17 @@
                 <!-- 태그 목록 -->
                 <ul id="tag-container" class="flex flex-col gap-2 px-3 py-2">
                     <!-- 전체, 오늘, 중요 태그 -->
-                    <button class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-edge p-1 button-border">
-                        <i class="fa-solid fa-inbox flex-shrink-0 border-4"></i>
-                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">전체</span>
+                    <button class="tag-item bg-edge sidebar-item button-border">
+                        <i class="fa-solid fa-inbox sidebar-item-icon"></i>
+                        <span class="tag-text sidebar-item-text">전체</span>
                     </button>
-                    <button class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-background p-1 button-border">
-                        <i class="fa-solid fa-calendar-week flex-shrink-0 border-4 border-background"></i>
-                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">오늘</span>
+                    <button class="tag-item bg-background sidebar-item button-border">
+                        <i class="fa-solid fa-calendar-week border-background sidebar-item-icon"></i>
+                        <span class="tag-text sidebar-item-text">오늘</span>
                     </button>
-                    <button class="tag-item flex items-center gap-3 rounded-sm border border-edge bg-important p-1 button-border">
-                        <i class="fa-solid fa-circle-exclamation flex-shrink-0 border-4 border-important"></i>
-                        <span class="tag-text flex-grow decoration-transparent transition-colors ease-in-out">중요</span>
+                    <button class="tag-item bg-important sidebar-item button-border">
+                        <i class="fa-solid fa-circle-exclamation border-important sidebar-item-icon"></i>
+                        <span class="tag-text sidebar-item-text">중요</span>
                     </button>
                     <div class="flex flex-row gap-20 pt-6 mb-4 justify-between">
                         <h2 class="text-md font-bold">태그</h2>
@@ -74,12 +74,12 @@
                     </li>
                     <!-- 임시 태그 -->
                     <div id="tag-button-container" class="flex flex-col gap-2">
-                        <button class="tag-button border border-edge rounded-lg bg-gray-200 px-4 button-border">기본</button>
-                        <button class="tag-button border border-edge rounded-lg bg-work px-4 button-border">업무</button>
-                        <button class="tag-button border border-edge rounded-lg bg-promise px-4 button-border">약속</button>
-                        <button class="tag-button border border-edge rounded-lg bg-study px-4 button-border">공부</button>
-                        <button class="tag-button border border-edge rounded-lg bg-exercise px-4 button-border">운동</button>
-                        <button class="tag-button border border-edge rounded-lg bg-hobby px-4 button-border">취미</button>
+                        <button class="tag-button bg-gray-200 button  button-border">기본</button>
+                        <button class="tag-button bg-work button button-border">업무</button>
+                        <button class="tag-button bg-promise button button-border">약속</button>
+                        <button class="tag-button bg-study button button-border">공부</button>
+                        <button class="tag-button bg-exercise button button-border">운동</button>
+                        <button class="tag-button bg-hobby button button-border">취미</button>
                     </div>
                 </ul>
             </div>
@@ -115,12 +115,12 @@
                                 <li class="flex flex-row">
                                     <button data-action="tag" class="sub-list-container-button pr-2">태그 선택</button>
                                     <ul class="hidden flex gap-3 bg-background m-1 ring-1 ring-black rounded-md">
-                                        <button class="tag-button border border-edge rounded-lg bg-sidebar px-4 button-border">기본</button>
-                                        <button class="tag-button border border-edge rounded-lg bg-work px-4 button-border">업무</button>
-                                        <button class="tag-button border border-edge rounded-lg bg-promise px-4 button-border">약속</button>
-                                        <button class="tag-button border border-edge rounded-lg bg-study px-4 button-border">공부</button>
-                                        <button class="tag-button border border-edge rounded-lg bg-exercise px-4 button-border">운동</button>
-                                        <button class="tag-button border border-edge rounded-lg bg-hobby px-4 button-border">취미</button>
+                                        <button class="tag-button bg-sidebar button button-border">기본</button>
+                                        <button class="tag-button bg-work button button-border">업무</button>
+                                        <button class="tag-button bg-promise button button-border">약속</button>
+                                        <button class="tag-button bg-study button button-border">공부</button>
+                                        <button class="tag-button bg-exercise button button-border">운동</button>
+                                        <button class="tag-button bg-hobby button button-border">취미</button>
                                     </ul>
                                 </li>
                                 <!-- 태그 선택 누르면 sidebar의 태그가 선택 태그로 바뀌고, 선택 태그를 누르면 그 태그를 가지게 됨-->

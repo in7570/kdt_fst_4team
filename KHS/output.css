@@ -605,6 +605,39 @@ video {
   --tw-ring-color: rgb(0 0 0 / var(--tw-ring-opacity, 1));
 }
 
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.125rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(222 226 230 / var(--tw-border-opacity, 1));
+  padding: 0.25rem;
+}
+
+.sidebar-item-icon {
+  flex-shrink: 0;
+  border-width: 4px;
+}
+
+.sidebar-item-text {
+  flex-grow: 1;
+  text-decoration-color: transparent;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.button {
+  border-radius: 0.5rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(222 226 230 / var(--tw-border-opacity, 1));
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 .absolute {
   position: absolute;
 }
@@ -821,10 +854,6 @@ video {
 
 .rounded-full {
   border-radius: 9999px;
-}
-
-.rounded-lg {
-  border-radius: 0.5rem;
 }
 
 .rounded-md {

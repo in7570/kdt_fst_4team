@@ -17,6 +17,39 @@ li {
   border: 3px solid #ccc;
   border-radius: 5px;
   transform: translateZ(0); /*GPU 가속 활성화 */
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 라이트모드에서 카드 스타일 개선 */
+@media (prefers-color-scheme: light) {
+  li {
+    background-color: #ffffff;
+    border: 2px solid #e0e6ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+  }
+
+  li:hover {
+    border-color: #4a90e2;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .listText {
+    color: #2c3e50;
+  }
+
+  .deleteButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .deleteButton:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+  }
 }
 .listText {
   display: inline-block;

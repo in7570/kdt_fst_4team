@@ -11,12 +11,25 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('할일');
 
   const onAdd = (text, category) => {
-    setTodos((prev) => [...prev, { id: Date.now(), text, selectedCategory }]);
+    setTodos((prev) => [
+      ...prev,
+      { id: Date.now(), text, category, deleting: false },
+    ]);
     setSelectedCategory(category);
     // ...prev : 기존 배열 복사
   };
   const onDelete = (todoId) => {
-    setTodos((prev) => prev.filter((e) => e.id !== todoId));
+    // 먼저 deleting 상태로 변경 (취소선 애니메이션 시작)
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === todoId ? { ...todo, deleting: true } : todo
+      )
+    );
+
+    // 0.3초 후 실제 삭제 (취소선 애니메이션 완료 후)
+    setTimeout(() => {
+      setTodos((prev) => prev.filter((e) => e.id !== todoId));
+    }, 300);
   };
   const onDragEnd = (result) => {
     const { source, destination } = result;

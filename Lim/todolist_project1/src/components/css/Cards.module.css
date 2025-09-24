@@ -18,6 +18,35 @@ li {
   border-radius: 5px;
   transform: translateZ(0); /*GPU 가속 활성화 */
   background-color: rgba(255, 255, 255, 0.05);
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.5s ease;
+}
+
+/* 삭제 시 취소선 애니메이션 */
+.deleting .listText {
+  position: relative;
+}
+
+.deleting .listText::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  background-color: currentColor;
+  width: 0%;
+  animation: strikethrough 0.4s ease-out forwards;
+  transform: translateY(-50%);
+}
+
+@keyframes strikethrough {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 /* 라이트모드에서 카드 스타일 개선 */
@@ -49,6 +78,13 @@ li {
   .deleteButton:hover {
     background-color: #c0392b;
     transform: scale(1.05);
+  }
+
+  /* 부모       자식 ::가상요소 */
+  .deleting .listText::after {
+    /* 삭제버튼 클릭 시 deleting 클래스 추가되어 
+     :;after로 가상요소가 활성화된다 */
+    background-color: currentColor;
   }
 }
 .listText {

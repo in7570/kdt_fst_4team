@@ -19,7 +19,9 @@ function Cards({ items, onDelete, onDragEnd }) {
               >
                 {(provided) => (
                   <li
-                    className={styles.listItem}
+                    className={`${styles.listItem} ${
+                      todo.deleting ? styles.deleting : ''
+                    }`}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}

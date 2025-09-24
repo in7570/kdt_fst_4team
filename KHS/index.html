@@ -8,6 +8,10 @@
     <!-- Pretendard 폰트 CDN -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://kit.fontawesome.com/3331d6bf42.js" crossorigin="anonymous"></script>
+    <!-- flatpickr 달력 CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
     <style>
         summary::-webkit-details-marker { /* Safari 브라우저용 사용자 정의 스타일 */
             display: none;
@@ -103,13 +107,16 @@
                                 <i data-action="check" class="fa-regular fa-square todo-checkbox flex-shrink-0"></i>
                                 <i data-action="check" class="fa-regular fa-square-check todo-checkbox hidden flex-shrink-0"></i>
                                 <span data-action="details" class="todo-text flex-grow"></span>
-                                <span data-action="time" class="todo-time w-10">time</span>
+                                <span data-action="time" class="todo-time w-16">time</span>
                                 <i data-action="delete" class="fa-solid fa-xmark btn-delete flex-shrink-0"></i>
                             </summary>
                             <!-- 서브 리스트 템플릿 -->
                             <div aria-hidden="true" class="border border-black"></div>
                             <ul class="sub-list-container my-2">
-                                <li><button data-action="time" class="sub-list-container-button">마감 기한</button></li>
+                                <li class="flex flex-row gap-3">
+                                    <button data-action="time" class="sub-list-container-button">마감 기한</button>
+                                    <input type="text" class="date-input hidden">
+                                </li>
                                 <!-- 누르면 기한 정할 수 있는 화면 생성, 기한 정하면 리스트 앞쪽에 날짜 나옴, 날짜 있었다면 날짜 바뀜 -->
                                 <li><button data-action="text" class="sub-list-container-button">세부 내용</button></li>
                                 <li class="flex flex-row">

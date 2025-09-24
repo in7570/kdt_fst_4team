@@ -150,7 +150,21 @@ function deleteItem(todoItem) {
 
 // 마감 기한 클릭
 function setTimer(subListContainer) {
-    return;
+    const dateInput = subListContainer.querySelector('.date-input');
+    dateInput.classList.toggle('hidden');
+    const timeDisplay = subListContainer.closest('.todo-item').querySelector('.todo-time');
+    const fp = flatpickr(dateInput, {
+        locale: "ko",
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: 'm-d H:i',
+        minDate: 'today',
+        onChange: function(selectedDates, dateStr, instance) {
+            timeDisplay.textContent = dateStr.split(' ')[0];
+            dateInput.value = dateStr;
+        }
+    });
+    if(!dateInput.classList.contains('hidden')) fp.open();
 }
 
 // 세부 내용 클릭

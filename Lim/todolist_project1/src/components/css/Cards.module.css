@@ -31,3 +31,13 @@ li {
   height: 3em;
   font-size: 1em;
 }
+
+/* 드래그앤드롭 placeholder 잔상 제거 */
+.card [data-rfd-placeholder-context-id] {
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  transition: none !important;
+}

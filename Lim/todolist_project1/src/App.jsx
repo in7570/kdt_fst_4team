@@ -8,9 +8,11 @@ import './App.css';
 
 function App() {
   const [todos, setTodos] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('할일');
 
-  const onAdd = (text) => {
-    setTodos((prev) => [...prev, { id: Date.now(), text }]);
+  const onAdd = (text, category) => {
+    setTodos((prev) => [...prev, { id: Date.now(), text, selectedCategory }]);
+    setSelectedCategory(category);
     // ...prev : 기존 배열 복사
   };
   const onDelete = (todoId) => {
@@ -21,6 +23,7 @@ function App() {
 
     if (!destination) return; // 드래그가 유효한지 확인
     // 아이템이 같은 위치로 드래그된 경우 빠져나옴
+
     if (source.index === destination.index) return;
     const updatedTodos = Array.from(todos);
     // Array.from : 유사 배열 객체나 반복 가능한 객체를 얕게 복사하여 새로운 배열 객체를 생성

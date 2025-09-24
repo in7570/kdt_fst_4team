@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import styles from './css/InputBox.module.css';
+import Categories from './Categories';
 
 function InputBox({ onAdd }) {
   const [inputValue, setInputValue] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('할일');
 
   const insertList = () => {
     if (inputValue === '') toast.error('입력해주세요~!');
     if (inputValue.trim()) {
       onAdd(inputValue);
       setInputValue('');
+      setSelectedCategory('할일');
     }
   };
   const onKeyDown = (e) => {
@@ -19,18 +22,26 @@ function InputBox({ onAdd }) {
       insertList();
     }
   };
+  const onChange = (e) => {
+    setSelectedCategory(e.target.value);
+    console.log(e.target.value);
+  };
+
   return (
-    <div className={styles.container}>
-      <input
-        type='text'
-        className={styles.input}
-        placeholder='할 일을 입력하세요'
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={onKeyDown}
-      />
-      <button onClick={insertList}>➕</button>
-    </div>
+    <>
+      <div className={styles.container}>
+        <input
+          type='text'
+          className={styles.input}
+          placeholder='할 일을 입력하세요'
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={onKeyDown}
+        />
+        <button onClick={insertList}>➕</button>
+      </div>
+      {/* <Categories onChange={onChange(e)} /> */}
+    </>
   );
 }
 

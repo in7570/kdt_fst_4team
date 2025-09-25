@@ -8,10 +8,20 @@ const todoTemplate = document.querySelector('.todo-item');
 const form = document.getElementById('todo-form');
 const subListContainerButton = document.querySelector('.sub-list-container-button');
 const tagButtonContainer = document.getElementById('tag-button-container');
+const tagAllButton = document.getElementById('tag-all');
 
 // 프로필 버튼 클릭하면 사용자이름/(로그인/로그아웃) 프레임 토글
 profileButton.addEventListener('click', (event) => {
     profileFrame.classList.toggle('hidden');
+});
+
+// TODO: 컨테이너 만들고 오늘, 중요 버튼 이벤트 리스너 생성
+// TODO: 사이드바 태그 버튼 누른 다음 전체 눌렀을 때 색 변하지 않는 버그 수정
+tagAllButton.addEventListener('click', (event) => {
+    const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
+    todoListAll.forEach((e) => {
+        e.classList.remove('hidden');
+    });
 });
 
 // 사이드바 태그 버튼 눌러 일치하는 리스트만 보임
@@ -113,7 +123,7 @@ listContainer.addEventListener('click', (event) => {
             setTimer(subListContainer); // 마감 기한 버튼 클릭
             break;
         case 'text':
-            writeText(subListContainer); // 세부 내용 버튼 클릭
+            writeText(actionTarget); // 세부 내용 버튼 클릭
             break;
         case 'tag':
             setTag(subListContainer, actionTarget); // 태그 선택 버튼 클릭
@@ -168,8 +178,9 @@ function setTimer(subListContainer) {
 }
 
 // 세부 내용 클릭
-function writeText(subListContainer) {
-    return;
+function writeText(actionTarget) {
+    const detailsInput = actionTarget.nextElementSibling;
+    detailsInput.classList.toggle('hidden');
 }
 
 // 태그 선택 클릭

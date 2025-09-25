@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import TitleBox from './components/TitleBox';
 import InputBox from './components/InputBox';
@@ -7,8 +7,25 @@ import Cards from './components/Cards';
 import './App.css';
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('할일');
+  // localStorage에서 데이터 불러오기 (초기값 설정)
+  const [todos, setTodos] = useState(() => {
+    const savedTodos = localStorage.getItem('todolist-todos');
+    return savedTodos ? JSON.parse(savedTodos) : [];
+  });
+
+  // const [selectedCategory, setSelectedCategory] = useState(() => {
+  //   const savedCategory = localStorage.getItem('todolist-category');
+  //   return savedCategory || '할일';
+  // });
+
+  // todos가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('todolist-todos', JSON.stringify(todos));
+  }, [todos]);
+
+  // useEffect(() => {
+  //   localStorage.setItem('todolist-category', selectedCategory);
+  // }, [selectedCategory]);
 
   const onAdd = (text, category) => {
     setTodos((prev) => [

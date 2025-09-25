@@ -10,9 +10,9 @@
   list-style: none;
 
   /* 스크롤 영역 설정 */
-  max-height: 60vh; /* 화면 높이의 60%로 제한 (뷰포트 기준) */
-  overflow-y: auto; /* 세로 스크롤 활성화 (내용이 넘치면 스크롤바 표시) */
-  padding-right: 8px; /* 스크롤바가 내용과 겹치지 않도록 여백 확보 */
+  max-height: 60vh;
+  overflow-y: auto; /* 내용이 넘치면 스크롤바 표시 */
+  padding-right: 8px;
 
   /* 드래그앤드롭과 스크롤 충돌 방지 */
   scroll-behavior: smooth; /* 부드러운 스크롤 */
@@ -119,15 +119,15 @@ li {
 
   /* 라이트모드 전용 스크롤바 스타일 오버라이드 */
   .card::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05); /* 라이트모드용 트랙 - 더 연한 색상 */
+    background: rgba(0, 0, 0, 0.05); /* 트랙  */
   }
 
   .card::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2); /* 라이트모드용 핸들 - 적당한 진함 */
+    background: rgba(0, 0, 0, 0.2); /* 핸들 */
   }
 
   .card::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4); /* 라이트모드 호버 시 핸들 색상 */
+    background: rgba(0, 0, 0, 0.4); /* 호버 시 핸들 */
   }
 }
 .listText {

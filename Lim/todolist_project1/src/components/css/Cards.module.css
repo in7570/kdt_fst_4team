@@ -10,9 +10,12 @@
   list-style: none;
 
   /* 스크롤 영역 설정 */
-  max-height: 60vh;
+  max-height: 60vh; /* 화면 높이의 60%로 제한 (뷰포트 기준) */
   overflow-y: auto; /* 세로 스크롤 활성화 (내용이 넘치면 스크롤바 표시) */
-  padding-right: 8px;
+  padding-right: 8px; /* 스크롤바가 내용과 겹치지 않도록 여백 확보 */
+
+  /* 드래그앤드롭과 스크롤 충돌 방지 */
+  scroll-behavior: smooth; /* 부드러운 스크롤 */
 }
 
 /* 커스텀 스크롤바 스타일링 (웹킷 브라우저용) */
@@ -42,11 +45,12 @@ li {
   padding: 0.5em;
   border: 3px solid #ccc;
   border-radius: 5px;
-  transform: translateZ(0); /*GPU 가속 활성화 */
+  transform: translateZ(0) scale(1); /* transform 통합 */
   background-color: rgba(255, 255, 255, 0.05);
   opacity: 1;
-  transform: scale(1);
-  transition: all 0.5s ease;
+  /* transition을 드래그에 영향 없는 속성들만으로 제한 */
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 /* 삭제 시 취소선 애니메이션 */
@@ -138,14 +142,4 @@ li {
   width: 3em;
   height: 3em;
   font-size: 1em;
-}
-
-/* 드래그앤드롭 placeholder 잔상 제거 */
-.card [data-rfd-placeholder-context-id] {
-  opacity: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  transition: none !important;
 }

@@ -38,7 +38,7 @@ function Cards({ items, onDelete, onDragEnd }) {
                 )}
               </Draggable>
             ))}
-            <div style={{ display: 'none' }}>{provided.placeholder}</div>
+            {provided.placeholder}
           </ul>
         )}
       </Droppable>

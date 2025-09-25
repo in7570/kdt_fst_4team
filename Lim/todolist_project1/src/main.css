@@ -1,5 +1,78 @@
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff')
+    format('woff');
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-2ExtraLight.woff')
+    format('woff');
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff')
+    format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff')
+    format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-5Medium.woff')
+    format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff')
+    format('woff');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-7ExtraBold.woff')
+    format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-8Heavy.woff')
+    format('woff');
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Escoredream';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-9Black.woff')
+    format('woff');
+  font-weight: 900;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: system-ui, Escoredream, Helvetica, Arial, sans-serif;
+  font-family: Escoredream; */
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
@@ -9,22 +82,25 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* 7열.브라우저가 굵은 글씨(bold)나 기울임(italic) 스타일을 인위적으로 만들어내지 않도록 함.
-8열. 텍스트를 화면에 좀 더 읽기 쉽게 렌더링하라는 브라우저에게 주는 힌트.
-9열. (크롬, 사파리 등 Webkit 브라우저 전용) 폰트의 경계선을 부드럽게(안티앨리어싱) 처리해서 더 선명하고 깔끔하게 보이게 함.
-10열. (파이어폭스 브라우저, macOS 전용) 폰트의 안티앨리어싱을 색상 대신 회색조로 처리해서 깔끔하게 보이게 함.*/
 
 /* 라이트모드를 쓰면 이렇게 변화한다는 뜻 */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #2c3e50;
+    background-color: #f8f9fa;
   }
   a:hover {
-    color: #747bff;
+    color: #4a90e2;
   }
   button {
-    background-color: #f9f9f9;
-    font-style: #111;
+    background-color: #ffcf4b;
+    color: #2c3e50;
+    border: 2px solid #e67e22;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  button:hover {
+    background-color: #f39c12;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 }

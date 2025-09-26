@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #fafafa;
+}
+
+.container {
+  width: 300px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+.input-area {
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 5px;
+}
+
+button {
+  padding: 5px 10px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+.done {
+  text-decoration: line-through;
+  color: gray;
+}

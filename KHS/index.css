@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* index.css */
+    .button-border {
+        @apply transform transition-all duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-black;
+    }
+    .sidebar-item {
+        @apply flex items-center gap-3 rounded-sm border border-edge p-1;
+    }
+    .sidebar-item-icon {
+        @apply flex-shrink-0 border-4;
+    }
+    .sidebar-item-text {
+        @apply flex-grow decoration-transparent transition-colors ease-in-out;
+    }
+    .button {
+        @apply border border-edge rounded-lg px-4;
+    }
+
+    /* login.html & password.html & register.html */
+    .auth-page {
+        @apply h-screen bg-background flex items-center justify-center font-sans;
+    }
+    .auth-header {
+        @apply text-3xl font-bold text-center text-gray-800 mb-12;
+    }
+    .auth-form-row {
+        @apply mb-4 flex items-center;
+    }
+    .auth-input {
+        @apply rounded-md border border-gray-300 p-2 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500;
+    }
+    .auth-input-icon {
+        @apply absolute top-1/2 right-3 -translate-y-1/2;
+    }
+    .auth-submit {
+        @apply w-full justify-center rounded-md bg-gray-800 py-2.5 px-4 text-white hover:bg-gray-700;
+    }
+
+    .auth-link {
+        @apply text-gray-600 hover:text-gray-800;
+    }
+}
+
+/* hidden 클래스가 다른 스타일에 의해 재정의되는 것을 방지 */
+.hidden {
+    display: none !important;
+}

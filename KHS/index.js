@@ -7,11 +7,66 @@ const todoInput = document.getElementById('todo-input');
 const todoTemplate = document.querySelector('.todo-item');
 const form = document.getElementById('todo-form');
 const subListContainerButton = document.querySelector('.sub-list-container-button');
+const tagButtonContainer = document.getElementById('tag-button-container');
+const tagAllButton = document.getElementById('tag-all');
 
 // 프로필 버튼 클릭하면 사용자이름/(로그인/로그아웃) 프레임 토글
 profileButton.addEventListener('click', (event) => {
     profileFrame.classList.toggle('hidden');
 });
+
+// TODO: 컨테이너 만들고 오늘, 중요 버튼 이벤트 리스너 생성
+// TODO: 사이드바 태그 버튼 누른 다음 전체 눌렀을 때 색 변하지 않는 버그 수정
+tagAllButton.addEventListener('click', (event) => {
+    const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
+    todoListAll.forEach((e) => {
+        e.classList.remove('hidden');
+    });
+});
+
+// 사이드바 태그 버튼 눌러 일치하는 리스트만 보임
+tagButtonContainer.addEventListener('click', (event) => {
+    if(event.target.tagName !== 'BUTTON') return;
+    const todoListAll = document.querySelectorAll('.todo-item:not(:first-child)');
+    const colorList = ['bg-gray-200', 'bg-work', 'bg-promise', 'bg-study', 'bg-exercise', 'bg-hobby', 'bg-gray-400', 'bg-work-dark', 'bg-promise-dark', 'bg-study-dark', 'bg-exercise-dark', 'bg-hobby-dark'];
+    const clickedColor = colorList.find((c) => event.target.classList.contains(c));
+
+    // 1. focus 상태의 태그를 클릭한 경우(== 이미 클릭된 태그를 한 번 더 클릭한 경우): 아무 일도 일어나지 않음
+    if(isGray400(clickedColor) || isDark(clickedColor)) return;
+
+    // 2. focus 상태가 아닌 태그를 클릭한 경우: 그 전 focus 태그의 배경색을 기본으로 돌리고 focus 태그의 배경색을 dark로 만들기
+    // 클릭 이벤트 핸들러가 실행되는 시점에는 focus 상태가 적용되기 전이라 focus 상태인 태그는 그 전 태그 하나가 유일함
+    const selected = Array.from(tagButtonContainer.children).find((c) => c.classList.contains('selected'));
+
+    if(selected) {
+        const selectedColor = colorList.find((c) => selected.classList.contains(c));
+        if(selectedColor) {
+            const selectedChangeColor = isGray400(selectedColor) ? selectedColor.replace('400', '200') : selectedColor.slice(0, -5); // -400인 경우 slice(-4), dark 색상인 경우 slice(-5)
+            selected.classList.remove(selectedColor, 'selected');
+            selected.classList.add(selectedChangeColor);
+        }
+    }
+
+    const changeColor = isGray200(clickedColor) ? clickedColor.replace('200', '400') : clickedColor + '-dark'; // -200인 경우 replace(2 -> 4), 나머지는 + '-dark'
+    event.target.classList.remove(clickedColor);
+    event.target.classList.add(changeColor, 'selected');
+
+    todoListAll.forEach((e) => {
+        e.classList.contains(clickedColor) ? e.classList.remove('hidden') : e.classList.add('hidden');
+    });
+});
+
+function isGray200(color) { // isGray200: bg-gray-200 인지 확인
+    return /200$/.test(color);
+}
+
+function isGray400(color) { // isGray: bg-gray-400 인지 확인
+    return /400$/.test(color);
+}
+
+function isDark(color) { // isDark: dark 계열인지 확인
+    return /-dark$/.test(color);
+}
 
 
 
@@ -65,13 +120,13 @@ listContainer.addEventListener('click', (event) => {
             deleteItem(todoItem); // 삭제 버튼 클릭
             break;
         case 'time':
-            setTimer(subListContainer);
+            setTimer(subListContainer); // 마감 기한 버튼 클릭
             break;
         case 'text':
-            writeText(subListContainer);
+            writeText(actionTarget); // 세부 내용 버튼 클릭
             break;
         case 'tag':
-            setTag(subListContainer, actionTarget);
+            setTag(subListContainer, actionTarget); // 태그 선택 버튼 클릭
             break;
     }
 });
@@ -103,36 +158,29 @@ function deleteItem(todoItem) {
     }, 300);
 }
 
-// subListContainerButton.addEventListener('click', (event) => {
-//     const target = event.target;
-//     const actionTarget = target.closest('[data-action]');
-
-//     if(!actionTarget) return;
-
-//     const action = actionTarget.dataset.action;
-//     const subListContainer = actionTarget.closest('.sub-list-container');
-
-//     switch(action) {
-//         case 'time':
-//             setTimer(subListContainer);
-//             break;
-//         case 'text':
-//             writeText(subListContainer);
-//             break;
-//         case 'tag':
-//             setTag(subListContainer, actionTarget);
-//             break;
-//     }
-// });
-
 // 마감 기한 클릭
 function setTimer(subListContainer) {
-    return;
+    const dateInput = subListContainer.querySelector('.date-input');
+    dateInput.classList.toggle('hidden');
+    const timeDisplay = subListContainer.closest('.todo-item').querySelector('.todo-time');
+    const fp = flatpickr(dateInput, {
+        locale: "ko",
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: 'm-d H:i',
+        minDate: 'today',
+        onChange: function(selectedDates, dateStr, instance) {
+            timeDisplay.textContent = dateStr.split(' ')[0];
+            dateInput.value = dateStr;
+        }
+    });
+    if(!dateInput.classList.contains('hidden')) fp.open();
 }
 
 // 세부 내용 클릭
-function writeText(subListContainer) {
-    return;
+function writeText(actionTarget) {
+    const detailsInput = actionTarget.nextElementSibling;
+    detailsInput.classList.toggle('hidden');
 }
 
 // 태그 선택 클릭

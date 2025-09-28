@@ -1,0 +1,9 @@
+# Node.js 의존성
+node_modules/
+
+# 시스템 파일
+.DS_Store
+
+# IDE/편집기 설정
+.vscode/
+.idea/

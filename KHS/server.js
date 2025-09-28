@@ -18,7 +18,44 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+app.post('/login', (req, res) => {
+  const {id, pwd} = req.body;
+  const emptyText = (!id || !pwd);
+  if(emptyText) {
+    res.status(400).json({
+      message: `${emptyText} 내용을 입력해주세요.`
+    });
+  }
 
+  const idRegex = /^[a-zA-Z0-9]{3,10}$/;
+  if(!idRegex.test(id)) {
+    res.status(400).json({
+      message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+    });
+  }
+
+  const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
+  if(!pwdRegex.test(pwd)) {
+    res.status(400).json({
+      message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+    });
+  }
+
+  //TODO: DB에 id, pwd 있는지 확인하는 로직 추가
+  const isUserFound = db.find((e) => {
+    e.id === id && e.pwd === pwd
+  });
+
+  if(!isUserFound) {
+    res.status(404).json({
+      message: "존재하지 않는 아이디 혹은 비밀번호 입니다. 다시 입력해주세요."
+    });
+  }
+
+  res.status(201).json({
+    message: "로그인 성공!"
+  });
+});
 
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'register.html'));
@@ -30,7 +67,7 @@ app.post('/register', (req, res) => {
   console.log(name, id, pwd, confirm_pwd, nickName);
   const emptyText = (!name || !id || !pwd || !confirm_pwd || !nickName);
   if(emptyText) {
-    res.status(404).json({
+    res.status(400).json({
       message: `${emptyText} 내용을 입력해주세요.`
     });
   }
@@ -86,6 +123,10 @@ app.post('/register', (req, res) => {
 app.get('/password', (req, res) => {
   res.sendFile(path.join(__dirname, 'password.html'));
 });
+
+app.post('/password', (req, res) => {
+  
+})
 
 app.listen(7777, () => {
   console.log(`Server is running at http://localhost:7777`);

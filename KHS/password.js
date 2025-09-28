@@ -26,5 +26,7 @@ document.querySelectorAll('.watch-pwd-close').forEach(closeIcon => {
     });
 });
 
+
+
 // 변경된 비밀번호 db에 저장
 // 다시 로그인 페이지로 돌아가서 로그인하기

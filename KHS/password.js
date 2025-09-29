@@ -31,8 +31,20 @@ if (submitBtn) {
     submitBtn.addEventListener('click', (event) => {
         event.preventDefault();
 
+        const idInput = document.getElementById('id');
         const newPasswordInput = document.getElementById('new-password');
         const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+
+        if (idInput.value.trim() === '') {
+            alert('아이디를 입력해주세요.');
+            idInput.focus();
+            return;
+        }
+        if (idInput.value.length < 3 || idInput.value.length > 10) {
+            alert(`아이디는 ${3}자 이상 ${10}자 이하로 입력해주세요.`);
+            idInput.focus();
+            return;
+        }
 
         if (newPasswordInput.value.trim() === '') {
             alert('새 비밀번호를 입력해주세요.');
@@ -58,7 +70,8 @@ if (submitBtn) {
 
         const newPwdData = {
             id: idInput.value,
-            pwd: passwordInput.value,
+            pwd: newPasswordInput.value,
+            confirm_pwd: confirmNewPasswordInput.value
         };
 
         fetch('/password', {

@@ -3,8 +3,8 @@ const path = require('path');
 const router = express.Router();
 router.use(express.json());
 
-// 임시 DB
-let db = new Map();
+
+const mariadb = require('../database/mariadb');
 
 router
     .route('/')
@@ -17,162 +17,192 @@ router
     .get((req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     })
-    .post((req, res) => {
+    .post(async (req, res) => {
         const {id, pwd} = req.body;
-        const emptyText = (!id || !pwd);
-        if(emptyText) {
-            res.status(400).json({
-            message: `${emptyText} 내용을 입력해주세요.`
+        if (!id || !pwd) {
+            return res.status(400).json({
+                message: "아이디와 비밀번호를 모두 입력해주세요."
             });
         }
 
         const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
-            res.status(400).json({
-            message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
         const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
-            res.status(400).json({
-            message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
-        //TODO: DB에 id, pwd 있는지 확인하는 로직 추가
-        const isUserFound = db.find((e) => {
-            e.id === id && e.pwd === pwd
-        });
+        try {
+            const sql = "SELECT * FROM users WHERE id = ?";
+            const rows = await mariadb.query(sql, [id]);
+            const isUserFound = (rows.length > 0);
 
-        if(!isUserFound) {
-            res.status(404).json({
-            message: "존재하지 않는 아이디 혹은 비밀번호 입니다. 다시 입력해주세요."
+            if(!isUserFound) {
+                return res.status(404).json({
+                    message: "존재하지 않는 아이디 입니다. 다시 입력해주세요."
+                });
+            } else {
+                if(rows[0].password === pwd) {
+                    return res.status(200).json({
+                        message: "로그인 성공!"
+                    });
+                } else {
+                    return res.status(404).json({
+                        message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
+                    });
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "서버 오류가 발생했습니다."
             });
         }
 
-        res.status(201).json({
-            message: "로그인 성공!"
-        });
     });
 
 router.route('/register')
     .get((req, res) => {
     res.sendFile(path.join(__dirname, 'register.html'));
     })
-    .post((req, res) => {
+    .post(async (req, res) => {
         const {name, id, pwd, confirm_pwd, nickName} = req.body;
-        console.log(req.body);
-        console.log(name, id, pwd, confirm_pwd, nickName);
-        const emptyText = (!name || !id || !pwd || !confirm_pwd || !nickName);
-        if(emptyText) {
-            res.status(400).json({
-            message: `${emptyText} 내용을 입력해주세요.`
+        if (!name || !id || !pwd || !confirm_pwd || !nickName) {
+            return res.status(400).json({
+                message: "모든 항목을 입력해주세요."
             });
         }
 
         const nameRegex = /^[가-힣]{2,6}$/;
         if(!nameRegex.test(name)) {
-            res.status(400).json({
-            message: "이름은 2~6자 이내의 한글로 입력해주세요."
+            return res.status(400).json({
+                message: "이름은 2~6자 이내의 한글로 입력해주세요."
             });
         }
 
         const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
-            res.status(400).json({
-            message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
         const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
-            res.status(400).json({
-            message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
         const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,6}$/;
         if(!nicknameRegex.test(nickName)) {
-            res.status(400).json({
-            message: "닉네임은 1~4자 이내의 영어 대소문자나 숫자, 한글로 입력해주세요."
+            return res.status(400).json({
+                message: "닉네임은 1~4자 이내의 영어 대소문자나 숫자, 한글로 입력해주세요."
             });
         }
 
         if(pwd !== confirm_pwd) {
-            res.status(400).json({
-            message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
+            return res.status(400).json({
+                message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
             });
         }
 
-        //TODO: DB에 존재하는 id일 때 예외처리
-        //TODO: name, id, pwd, confirm_pwd, nickname 받아서 DB에 저장
-        db.set(user_id++, {
-            name: name,
-            id: id,
-            pwd: pwd,
-            nickName: nickName
-        });
+        try {
+            let sql = "SELECT * FROM users WHERE id = ?";
+            const rows = await mariadb.query(sql, id);
+            if (rows.length > 0) {
+                return res.status(409).json({
+                    message: "이미 존재하는 아이디입니다."
+                });
+            }
 
-        res.status(201).json({
-            message: "회원가입 성공!"
-        });
+            sql = "INSERT INTO users (id, name, password, nickname) VALUES (?, ?, ?, ?)";
+            const values = [id, name, pwd, nickName];
+            await mariadb.query(sql, values);
+            res.status(201).json({
+                message: "회원가입 성공!"
+            });
+        } catch (err) {
+            console.error("DB 에러: err");
+            return res.status(500).json({
+                message: "서버 오류가 발생했습니다."
+            });
+        }
     });
 
 router.route('/password')
-    .get((req, res) => {
+    .get(async (req, res) => {
     res.sendFile(path.join(__dirname, 'password.html'));
     })
-    .post((req, res) => {
+    .post(async (req, res) => {
         const {id, pwd, confirm_pwd} = req.body;
         console.log(req.body);
         console.log(id, pwd, confirm_pwd);
         const emptyText = (!id || !pwd || !confirm_pwd);
         if(emptyText) {
-            res.status(400).json({
-            message: `${emptyText} 내용을 입력해주세요.`
+            return res.status(400).json({
+                message: "내용을 모두 입력해주세요."
             });
         }
 
         const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
-            res.status(400).json({
-            message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
         const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
-            res.status(400).json({
-            message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
+            return res.status(400).json({
+                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
         if(pwd !== confirm_pwd) {
-            res.status(400).json({
-            message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
+            return res.status(400).json({
+                message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
             });
         }
 
-        //TODO: DB에 존재하지 않는 id일 때 예외처리
-        //TODO: DB에 저장됨 id와 일치하는 계정의 pwd를 수정
-        const isUserFound = db.find((e) => {
-            e.id === id
-        });
+        try {
+            // DB에서 사용자 확인
+            let sql = "SELECT * FROM users WHERE id = ?";
+            const rows = await mariadb.query(sql, id);
 
-        if(isUserFound) {
-            db.set(db.get(isUserFound), );
+            if (rows.length === 0) {
+                return res.status(404).json({
+                    message: "존재하지 않는 아이디입니다."
+                });
+            }
+
+            // 현재 비밀번호와 새 비밀번호가 같은지 확인
+            if (rows[0].password === pwd) {
+                return res.status(400).json({
+                    message: "동일한 비밀번호입니다. 다시 입력해주세요."
+                });
+            }
+
+            // 비밀번호 업데이트
+            sql = "UPDATE users SET password = ? WHERE id = ?";
+            await mariadb.query(sql, [pwd, id]);
+
+            res.status(200).json({
+                message: "비밀번호가 성공적으로 변경되었습니다."
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({
+                message: "서버 오류가 발생했습니다."
+            });
         }
-
-        db.set(id, {
-            name: name,
-            pwd: pwd,
-            nickName: nickName
-        });
-
-        res.status(201).json({
-            message: "회원가입 성공!"
-        });
     });
 
 module.exports = router;

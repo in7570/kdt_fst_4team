@@ -4,5 +4,9 @@
   },
   "scripts": {
     "build:css": "tailwindcss -i ./index.css -o ./output.css"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1"
   }
 }

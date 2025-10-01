@@ -87,8 +87,35 @@ if (submitBtn) {
             nickNameInput.focus();
             return;
         }
-        alert('회원가입 성공!');
-        // 로그인 페이지로 돌아감
+
+        const userData = {
+            name: userNameInput.value,
+            id: idInput.value,
+            pwd: passwordInput.value,
+            confirm_pwd: confirmPasswordInput.value,
+            nickName: nickNameInput.value
+        };
+
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.message === "회원가입 성공!") {
+                alert('회원가입 성공!');
+                window.location.href = '/login';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+            alert('회원가입 중 오류가 발생했습니다.');
+        });
     });
 }
 

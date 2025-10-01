@@ -1,10 +1,15 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
+const {body, param, validationResult} = require('express-validator');
 router.use(express.json());
 
 
 const mariadb = require('../database/mariadb');
+const idRegex = /^[a-zA-Z0-9]{3,10}$/;
+const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
+const nameRegex = /^[가-힣]{2,6}$/;
+const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,6}$/;
 
 router
     .route('/')
@@ -17,7 +22,7 @@ router
     .get((req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     })
-    .post(async (req, res) => {
+    .post([body('id').notEmpty()], async (req, res) => {
         const {id, pwd} = req.body;
         if (!id || !pwd) {
             return res.status(400).json({
@@ -25,14 +30,12 @@ router
             });
         }
 
-        const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
             return res.status(400).json({
                 message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
-        const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
             return res.status(400).json({
                 message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
@@ -80,28 +83,24 @@ router.route('/register')
             });
         }
 
-        const nameRegex = /^[가-힣]{2,6}$/;
         if(!nameRegex.test(name)) {
             return res.status(400).json({
                 message: "이름은 2~6자 이내의 한글로 입력해주세요."
             });
         }
 
-        const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
             return res.status(400).json({
                 message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
-        const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
             return res.status(400).json({
                 message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
-        const nicknameRegex = /^[a-zA-Z0-9가-힣]{2,6}$/;
         if(!nicknameRegex.test(nickName)) {
             return res.status(400).json({
                 message: "닉네임은 1~4자 이내의 영어 대소문자나 숫자, 한글로 입력해주세요."
@@ -152,14 +151,12 @@ router.route('/password')
             });
         }
 
-        const idRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!idRegex.test(id)) {
             return res.status(400).json({
                 message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
             });
         }
 
-        const pwdRegex = /^[a-zA-Z0-9]{3,10}$/;
         if(!pwdRegex.test(pwd)) {
             return res.status(400).json({
                 message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."

@@ -22,25 +22,16 @@ router
     .get((req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     })
-    .post([body('id').notEmpty()], async (req, res) => {
+    .post([
+        body('id').notEmpty().withMessage("아이디와 비밀번호를 모두 입력해주세요.").matches(idRegex).withMessage("아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."),
+        body('pwd').notEmpty().withMessage("아이디와 비밀번호를 모두 입력해주세요.").matches(pwdRegex).withMessage("비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요.")
+    ], async (req, res) => {
+        const err = validationResult(req);
+        if (!err.isEmpty()) {
+            return res.status(400).json({ errors: err.array() });
+        }
+
         const {id, pwd} = req.body;
-        if (!id || !pwd) {
-            return res.status(400).json({
-                message: "아이디와 비밀번호를 모두 입력해주세요."
-            });
-        }
-
-        if(!idRegex.test(id)) {
-            return res.status(400).json({
-                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
-
-        if(!pwdRegex.test(pwd)) {
-            return res.status(400).json({
-                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
 
         try {
             const sql = "SELECT * FROM users WHERE id = ?";
@@ -73,45 +64,27 @@ router
 
 router.route('/register')
     .get((req, res) => {
-    res.sendFile(path.join(__dirname, 'register.html'));
+        res.sendFile(path.join(__dirname, 'register.html'));
     })
-    .post(async (req, res) => {
-        const {name, id, pwd, confirm_pwd, nickName} = req.body;
-        if (!name || !id || !pwd || !confirm_pwd || !nickName) {
-            return res.status(400).json({
-                message: "모든 항목을 입력해주세요."
-            });
+    .post([
+        body('name').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(nameRegex).withMessage("이름은 2~6자 이내의 한글로 입력해주세요."),
+        body('id').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(idRegex).withMessage("아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."),
+        body('pwd').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(pwdRegex).withMessage("비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."),
+        body('confirm_pwd').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(pwdRegex).withMessage("비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요.")
+            .custom((value, { req }) => {
+                if (value !== req.body.pwd) {
+                    throw new Error('비밀번호가 일치하지 않습니다. 다시 입력해주세요.');
+                }
+                return true;
+            }),
+        body('nickName').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(nicknameRegex).withMessage("닉네임은 2~6자 이내의 영어 대소문자나 숫자, 한글로 입력해주세요."),
+    ], async (req, res) => {
+        const err = validationResult(req);
+        if (!err.isEmpty()) {
+            return res.status(400).json({ errors: err.array() });
         }
 
-        if(!nameRegex.test(name)) {
-            return res.status(400).json({
-                message: "이름은 2~6자 이내의 한글로 입력해주세요."
-            });
-        }
-
-        if(!idRegex.test(id)) {
-            return res.status(400).json({
-                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
-
-        if(!pwdRegex.test(pwd)) {
-            return res.status(400).json({
-                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
-
-        if(!nicknameRegex.test(nickName)) {
-            return res.status(400).json({
-                message: "닉네임은 1~4자 이내의 영어 대소문자나 숫자, 한글로 입력해주세요."
-            });
-        }
-
-        if(pwd !== confirm_pwd) {
-            return res.status(400).json({
-                message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
-            });
-        }
+        const {name, id, pwd, nickName} = req.body;
 
         try {
             let sql = "SELECT * FROM users WHERE id = ?";
@@ -137,40 +110,28 @@ router.route('/register')
     });
 
 router.route('/password')
-    .get(async (req, res) => {
+    .get((req, res) => {
     res.sendFile(path.join(__dirname, 'password.html'));
     })
-    .post(async (req, res) => {
+    .post([
+        body('id').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(idRegex).withMessage("아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."),
+        body('pwd').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(pwdRegex).withMessage("비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."),
+        body('confirm_pwd').notEmpty().withMessage("모든 항목을 입력해주세요.").matches(pwdRegex).withMessage("비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요.")
+            .custom((value, { req }) => {
+                if (value !== req.body.pwd) {
+                    throw new Error('비밀번호가 일치하지 않습니다. 다시 입력해주세요.');
+                }
+                return true;
+            }),
+    ], async (req, res) => {
+        const err = validationResult(req);
+        if (!err.isEmpty()) {
+            return res.status(400).json({ errors: err.array() });
+        }
+        
         const {id, pwd, confirm_pwd} = req.body;
-        console.log(req.body);
-        console.log(id, pwd, confirm_pwd);
-        const emptyText = (!id || !pwd || !confirm_pwd);
-        if(emptyText) {
-            return res.status(400).json({
-                message: "내용을 모두 입력해주세요."
-            });
-        }
-
-        if(!idRegex.test(id)) {
-            return res.status(400).json({
-                message: "아이디는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
-
-        if(!pwdRegex.test(pwd)) {
-            return res.status(400).json({
-                message: "비밀번호는 3~10자 이내의 영어 대소문자나 숫자로 입력해주세요."
-            });
-        }
-
-        if(pwd !== confirm_pwd) {
-            return res.status(400).json({
-                message: "비밀번호가 일치하지 않습니다. 다시 입력해주세요."
-            });
-        }
 
         try {
-            // DB에서 사용자 확인
             let sql = "SELECT * FROM users WHERE id = ?";
             const rows = await mariadb.query(sql, id);
 
@@ -180,14 +141,12 @@ router.route('/password')
                 });
             }
 
-            // 현재 비밀번호와 새 비밀번호가 같은지 확인
             if (rows[0].password === pwd) {
                 return res.status(400).json({
                     message: "동일한 비밀번호입니다. 다시 입력해주세요."
                 });
             }
 
-            // 비밀번호 업데이트
             sql = "UPDATE users SET password = ? WHERE id = ?";
             await mariadb.query(sql, [pwd, id]);
 

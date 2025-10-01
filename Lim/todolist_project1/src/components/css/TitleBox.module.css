@@ -8,6 +8,14 @@
   font-weight: bold;
   margin: auto 0;
 }
+
+/* 라이트모드에서 타이틀 색상 개선 */
+@media (prefers-color-scheme: light) {
+  .title {
+    color: #2c3e50;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
 .icon {
   width: 4em;
   height: 5em;

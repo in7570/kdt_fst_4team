@@ -1,0 +1,20 @@
+{
+  "name": "kim",
+  "version": "1.0.0",
+  "description": "이 프로젝트는 인터랙티브 투두리스트 웹 애플리케이션입니다.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mariadb": "^3.4.5",
+    "mysql2": "^3.15.1"
+  }
+}

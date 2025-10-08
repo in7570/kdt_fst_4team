@@ -137,16 +137,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="delete-btn">×</button>
             `;
 
-            // 체크박스 클릭 이벤트 리스너 추가
+            // 체크박스 클릭 시 완료/미완료 처리
             const checkboxContainer = li.querySelector('.checkbox-container');
-            checkboxContainer.addEventListener('click', async () => {
+            checkboxContainer.addEventListener('click', async (e) => {
+                // 이벤트 전파를 막아 span의 이벤트 리스너가 반응하지 않도록 함
+                e.stopPropagation(); 
+                
                 const isCompleted = !li.classList.contains('checked');
-                await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                    method: 'PUT',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ is_completed: isCompleted })
-                });
-                fetchTodos(currentFilter); // 목록 새로고침
+                try {
+                    const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ is_completed: isCompleted })
+                    });
+                    if (!response.ok) throw new Error('Todo update failed');
+                    // 성공 시 UI 즉시 업데이트 후, 서버와 동기화
+                    li.classList.toggle('checked');
+                } catch (error) {
+                    console.error('Error updating todo:', error);
+                    // 실패 시 원래 상태로 되돌리거나 사용자에게 알림
+                    alert('항목 업데이트에 실패했습니다.');
+                }
             });
 
             // 삭제 버튼 이벤트 리스너 추가
@@ -157,35 +168,74 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'DELETE',
                         headers: getAuthHeaders()
                     });
-                    fetchTodos(currentFilter); // 목록 새로고침
+                    li.remove(); // UI에서 즉시 삭제
                 }
             });
 
-            // 할 일 내용(span) 클릭 시 수정 기능 (선택적)
+            // 할 일 내용(span) 더블클릭 시 수정 기능
             const span = li.querySelector('span');
-            span.addEventListener('click', () => {
+
+            // span을 클릭했을 때 이벤트가 부모로 전파되는 것을 막아 완료 처리를 방지
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            span.addEventListener('dblclick', () => {
+                const currentContent = span.textContent;
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.value = span.textContent;
-                span.replaceWith(input);
+                input.value = currentContent;
+                
+                // 수정 input 클릭 시 이벤트 버블링을 막아 완료 처리를 방지
+                input.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                // span을 input으로 교체
+                span.style.display = 'none';
+                checkboxContainer.appendChild(input);
                 input.focus();
 
                 const saveChanges = async () => {
                     const newContent = input.value.trim();
-                    if (newContent && newContent !== todo.content) {
-                        await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                    
+                    // 내용이 비어있거나 변경되지 않았으면 원래대로 복구
+                    if (!newContent || newContent === currentContent) {
+                        input.remove();
+                        span.style.display = '';
+                        return;
+                    }
+
+                    // 서버에 변경사항 전송
+                    try {
+                        const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                             method: 'PUT',
                             headers: getAuthHeaders(),
                             body: JSON.stringify({ content: newContent })
                         });
+                        if (!response.ok) throw new Error('Update failed');
+                        
+                        // 성공 시 UI 업데이트
+                        span.textContent = newContent;
+                    } catch (error) {
+                        console.error('Error updating content:', error);
+                        alert('내용 수정에 실패했습니다.');
+                    } finally {
+                        // input을 다시 span으로 복구
+                        input.remove();
+                        span.style.display = '';
                     }
-                    fetchTodos(currentFilter);
                 };
 
+                // input 포커스가 해제되거나 Enter 키를 누르면 저장
                 input.addEventListener('blur', saveChanges);
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
-                        saveChanges();
+                        input.blur(); // blur 이벤트를 트리거하여 저장 로직 실행
+                    } else if (e.key === 'Escape') {
+                        // Esc 키를 누르면 수정 취소
+                        input.remove();
+                        span.style.display = '';
                     }
                 });
             });

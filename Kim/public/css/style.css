@@ -1,9 +1,8 @@
 /* General Body Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f4f7f9;
+    background-color: #f0f2f5; /* Light grey background */
     margin: 0;
-    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,22 +10,22 @@ body {
 }
 
 /* Container for login/register forms */
-.container {
-    width: 100%;
-    max-width: 400px;
-}
-
 .form-container {
     background: white;
-    padding: 40px;
+    padding: 40px 50px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
 }
 
-h1 {
+.form-title {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
+    font-size: 36px;
+    font-weight: 600;
 }
 
 /* Input fields styling */
@@ -34,51 +33,51 @@ h1 {
     margin-bottom: 20px;
 }
 
-.input-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-weight: 600;
-}
-
 .input-group input {
     width: 100%;
-    padding: 10px;
+    padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
+    font-size: 16px;
+}
+
+.input-group input::placeholder {
+    color: #aaa;
 }
 
 /* Button styling */
 button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #007bff;
+    background-color: #2D8B7B; /* Teal color from image */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
+    margin-top: 10px;
 }
 
 button[type="submit"]:hover {
-    background-color: #0056b3;
+    background-color: #257263;
 }
 
-/* Link for switching between login/register */
-p {
+/* Links for register, find id/pw */
+.sub-links {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 25px;
+}
+
+.sub-links a {
     color: #555;
-}
-
-p a {
-    color: #007bff;
     text-decoration: none;
+    font-size: 14px;
+    margin: 0 5px;
 }
 
-p a:hover {
+.sub-links a:hover {
     text-decoration: underline;
 }
 

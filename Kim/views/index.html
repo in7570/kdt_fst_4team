@@ -3,58 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>투두리스트</title>
+    <title>Todo List</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="logo">투두리스트</div>
+    <div class="container">
+        <header>
+            <h1>TO-DO LIST</h1>
             <div class="user-profile">
-                <span id="user-nickname">닉네임</span> 님
-                <button id="logout-btn">로그아웃</button>
+                <img src="https://via.placeholder.com/30" alt="User Avatar">
+                <div class="dropdown">
+                    <p>홍길동 님</p>
+                    <a href="/logout">로그아웃</a>
+                </div>
             </div>
         </header>
-
-        <div class="app-body">
-            <nav class="sidebar">
-                <div class="filter-group">
-                    <h3>기본 필터</h3>
-                    <ul>
-                        <li><a href="#" id="filter-all" class="active">전체</a></li>
-                        <li><a href="#" id="filter-today">오늘</a></li>
-                        <li><a href="#" id="filter-important">중요</a></li>
-                    </ul>
+        <main>
+            <div class="todo-container-wrapper">
+                <div class="prev-day-container">
+                    <p>10월 17일</p>
                 </div>
-                <div class="tag-group">
-                    <h3>태그</h3>
-                    <form id="tag-form">
-                        <input type="text" id="tag-input" placeholder="새 태그...">
-                        <button type="submit">+</button>
-                    </form>
-                    <ul id="tag-list">
-                        <!-- 태그 목록이 동적으로 추가될 영역 -->
-                    </ul>
-                </div>
-            </nav>
-
-            <main class="main-content">
-                <div class="todo-input-container">
-                    <form id="todo-form">
-                        <input type="text" id="todo-input" placeholder="새로운 할 일 추가..." required>
-                        <button type="submit">추가</button>
-                    </form>
-                </div>
-
-                <div class="todo-list-container">
+                <div class="todo-container">
+                    <div class="todo-header">
+                        <button class="nav-btn">&lt;</button>
+                        <h2>10월 18일</h2>
+                        <button class="nav-btn">&gt;</button>
+                    </div>
+                    <div class="sidebar">
+                        <div class="tabs">
+                            <div class="tab active">업무</div>
+                            <div class="tab">업무</div>
+                            <div class="tab">업무</div>
+                        </div>
+                    </div>
+                    <div class="add-todo">
+                        <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요.">
+                        <button id="add-btn">+</button>
+                    </div>
                     <ul id="todo-list">
-                        <!-- 할 일 목록이 동적으로 추가될 영역 -->
+                        <li class="checked">
+                            <div class="checkbox-container">
+                                <div class="checkbox"></div>
+                                <span>리스트 내용/checked</span>
+                            </div>
+                            <button class="delete-btn">×</button>
+                        </li>
+                        <li class="checked">
+                            <div class="checkbox-container">
+                                <div class="checkbox"></div>
+                                <span>리스트 내용/checked</span>
+                            </div>
+                            <button class="delete-btn">×</button>
+                        </li>
+                        <li>
+                            <div class="checkbox-container">
+                                <div class="checkbox"></div>
+                                <span>리스트 내용/unchecked</span>
+                            </div>
+                            <button class="delete-btn">×</button>
+                        </li>
                     </ul>
                 </div>
-            </main>
-        </div>
+                <div class="next-day-container">
+                    <p>10월 19일</p>
+                </div>
+            </div>
+        </main>
     </div>
-
     <script src="/js/main.js"></script>
 </body>
 </html>

@@ -11,19 +11,20 @@
         <header>
             <h1>TO-DO LIST</h1>
             <div class="user-profile">
-                <img src="https://via.placeholder.com/30" alt="User Avatar">
+                <img src="https://via.placeholder.com/30" alt="User Avatar" id="user-profile-img">
                 <div class="dropdown">
                     <p>홍길동 님</p>
+                    <hr>
                     <a href="/logout">로그아웃</a>
                 </div>
             </div>
         </header>
         <main>
             <div class="todo-container-wrapper">
-                <div class="prev-day-container">
+                <div class="prev-day-container day-container">
                     <p>10월 17일</p>
                 </div>
-                <div class="todo-container">
+                <div class="todo-main-container">
                     <div class="todo-header">
                         <button class="nav-btn">&lt;</button>
                         <h2>10월 18일</h2>
@@ -36,35 +37,16 @@
                             <div class="tab">업무</div>
                         </div>
                     </div>
-                    <div class="add-todo">
-                        <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요.">
-                        <button id="add-btn">+</button>
+                    <div class="todo-container">
+                        <form id="todo-form" class="add-todo">
+                            <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요.">
+                            <button id="add-btn" type="submit">+</button>
+                        </form>
+                        <ul id="todo-list">
+                        </ul>
                     </div>
-                    <ul id="todo-list">
-                        <li class="checked">
-                            <div class="checkbox-container">
-                                <div class="checkbox"></div>
-                                <span>리스트 내용/checked</span>
-                            </div>
-                            <button class="delete-btn">×</button>
-                        </li>
-                        <li class="checked">
-                            <div class="checkbox-container">
-                                <div class="checkbox"></div>
-                                <span>리스트 내용/checked</span>
-                            </div>
-                            <button class="delete-btn">×</button>
-                        </li>
-                        <li>
-                            <div class="checkbox-container">
-                                <div class="checkbox"></div>
-                                <span>리스트 내용/unchecked</span>
-                            </div>
-                            <button class="delete-btn">×</button>
-                        </li>
-                    </ul>
                 </div>
-                <div class="next-day-container">
+                <div class="next-day-container day-container">
                     <p>10월 19일</p>
                 </div>
             </div>

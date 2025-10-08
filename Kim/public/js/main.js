@@ -101,41 +101,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagList = document.getElementById('tag-list');
     const logoutBtn = document.getElementById('logout-btn');
     const userNicknameSpan = document.getElementById('user-nickname');
+    const userProfileImg = document.getElementById('user-profile-img');
+    const dropdown = document.querySelector('.user-profile .dropdown');
+
+    if (userProfileImg) {
+        userProfileImg.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    });
 
     // 할 일 목록 렌더링 함수
     const renderTodos = (todos) => {
+        if (!todoList) return;
         todoList.innerHTML = ''; // 목록 초기화
         todos.forEach(todo => {
             const li = document.createElement('li');
             li.dataset.id = todo.id;
             if (todo.is_completed) {
-                li.classList.add('completed');
-            }
-            if (todo.is_important) {
-                li.classList.add('important'); // 중요 항목 클래스 추가
+                li.classList.add('checked');
             }
 
-            // 완료 체크박스
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = todo.is_completed;
-            checkbox.addEventListener('change', async () => {
+            // innerHTML을 사용하여 복잡한 구조를 한 번에 생성
+            li.innerHTML = `
+                <div class="checkbox-container">
+                    <div class="checkbox"></div>
+                    <span>${todo.content}</span>
+                </div>
+                <button class="delete-btn">×</button>
+            `;
+
+            // 체크박스 클릭 이벤트 리스너 추가
+            const checkboxContainer = li.querySelector('.checkbox-container');
+            checkboxContainer.addEventListener('click', async () => {
+                const isCompleted = !li.classList.contains('checked');
                 await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                     method: 'PUT',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ is_completed: checkbox.checked })
+                    body: JSON.stringify({ is_completed: isCompleted })
                 });
-                fetchTodos(currentFilter);
+                fetchTodos(currentFilter); // 목록 새로고침
             });
 
-            // 할 일 내용 (클릭 시 수정 가능)
-            const span = document.createElement('span');
-            span.textContent = todo.content;
+            // 삭제 버튼 이벤트 리스너 추가
+            const deleteBtn = li.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', async () => {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                        method: 'DELETE',
+                        headers: getAuthHeaders()
+                    });
+                    fetchTodos(currentFilter); // 목록 새로고침
+                }
+            });
+
+            // 할 일 내용(span) 클릭 시 수정 기능 (선택적)
+            const span = li.querySelector('span');
             span.addEventListener('click', () => {
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.value = span.textContent;
-                li.replaceChild(input, span);
+                span.replaceWith(input);
                 input.focus();
 
                 const saveChanges = async () => {
@@ -158,43 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // 중요 버튼
-            const importantBtn = document.createElement('button');
-            importantBtn.textContent = todo.is_important ? '★' : '☆';
-            importantBtn.classList.add('important-btn');
-            importantBtn.addEventListener('click', async () => {
-                await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                    method: 'PUT',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ is_important: !todo.is_important })
-                });
-                fetchTodos(currentFilter);
-            });
-
-            // 삭제 버튼
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '삭제';
-            deleteBtn.classList.add('delete-btn');
-            deleteBtn.addEventListener('click', async () => {
-                if (confirm('정말 삭제하시겠습니까?')) {
-                    await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                        method: 'DELETE',
-                        headers: getAuthHeaders()
-                    });
-                    fetchTodos(currentFilter);
-                }
-            });
-
-            li.appendChild(checkbox);
-            li.appendChild(span);
-            li.appendChild(importantBtn);
-            li.appendChild(deleteBtn);
             todoList.appendChild(li);
         });
     };
 
     // 태그 목록 렌더링 함수
     const renderTags = (tags) => {
+        if (!tagList) return;
         tagList.innerHTML = ''; // 목록 초기화
         tags.forEach(tag => {
             const li = document.createElement('li');
@@ -263,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 태그 목록 불러오기
     const fetchTags = async () => {
+        if (!tagList) return;
         try {
             const response = await fetch(`${apiBaseUrl}/tags`, {
                 headers: getAuthHeaders()
@@ -325,26 +328,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 사이드바 필터 이벤트 리스너
-        document.getElementById('filter-all').addEventListener('click', (e) => {
-            e.preventDefault();
-            fetchTodos({});
-            updateActiveFilter(e.target);
-        });
-        document.getElementById('filter-today').addEventListener('click', (e) => {
-            e.preventDefault();
-            fetchTodos({ filter: 'today' });
-            updateActiveFilter(e.target);
-        });
-        document.getElementById('filter-important').addEventListener('click', (e) => {
-            e.preventDefault();
-            fetchTodos({ is_important: 'true' });
-            updateActiveFilter(e.target);
-        });
+        const filterAll = document.getElementById('filter-all');
+        if (filterAll) {
+            filterAll.addEventListener('click', (e) => {
+                e.preventDefault();
+                fetchTodos({});
+                updateActiveFilter(e.target);
+            });
+        }
+        const filterToday = document.getElementById('filter-today');
+        if (filterToday) {
+            filterToday.addEventListener('click', (e) => {
+                e.preventDefault();
+                fetchTodos({ filter: 'today' });
+                updateActiveFilter(e.target);
+            });
+        }
+        const filterImportant = document.getElementById('filter-important');
+        if (filterImportant) {
+            filterImportant.addEventListener('click', (e) => {
+                e.preventDefault();
+                fetchTodos({ is_important: 'true' });
+                updateActiveFilter(e.target);
+            });
+        }
 
         // 페이지 로드 시 할 일 및 태그 목록 불러오기
         fetchTodos({});
         fetchTags();
-        updateActiveFilter(document.getElementById('filter-all'));
+        if (filterAll) {
+            updateActiveFilter(filterAll);
+        }
 
         // 새로운 할 일 추가
         todoForm.addEventListener('submit', async (e) => {

@@ -4,7 +4,7 @@
   "description": "이 프로젝트는 인터랙티브 투두리스트 웹 애플리케이션입니다.",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,5 +16,8 @@
     "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.5",
     "mysql2": "^3.15.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

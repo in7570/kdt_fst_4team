@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise');
+const pool = require('./db');
+
 const dbConfig = {
     host: 'localhost',
     user: 'root',
@@ -10,26 +12,19 @@ const dbName = 'todolist_db';
 const initializeDatabase = async () => {
     let connection;
     try {
-        // 데이터베이스 없이 연결
+        // 데이터베이스가 없는 경우를 대비해, 데이터베이스 이름 없이 연결
         connection = await mysql.createConnection(dbConfig);
         
-        // 데이터베이스 생성
+        // 데이터베이스 생성 (이미 존재하면 아무 작업도 하지 않음)
         const [dbResult] = await connection.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
         if (dbResult.warningStatus === 0) {
             console.log(`데이터베이스 '${dbName}'이(가) 생성되었습니다.`);
         }
         
+        // 초기 연결 종료
         await connection.end();
 
-        // 생성된 데이터베이스로 연결 풀 생성
-        const pool = mysql.createPool({
-            ...dbConfig,
-            database: dbName,
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0
-        });
-
+        // db.js에서 가져온 공유 풀을 사용하여 테이블 생성
         const dbConnection = await pool.getConnection();
         
         let tablesWereCreated = false;
@@ -92,8 +87,10 @@ const initializeDatabase = async () => {
             console.log('모든 테이블이 성공적으로 생성되었습니다.');
         }
         
+        // 사용한 연결만 풀에 반환
         dbConnection.release();
-        await pool.end();
+        // 공유 풀이므로 여기서 pool.end()를 호출하지 않습니다.
+        // 풀은 애플리케이션이 종료될 때 app.js에서 닫아줍니다.
 
     } catch (error) {
         console.error('데이터베이스 설정 중 오류가 발생했습니다:', error);

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { body, validationResult } = require('express-validator');
 const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -7,14 +8,35 @@ const jwt = require('jsonwebtoken');
 const saltRounds = 10;
 const jwtSecret = 'your_jwt_secret'; // 실제 프로덕션에서는 환경 변수로 관리해야 합니다.
 
+// 유효성 검사 에러를 처리하는 미들웨어
+const handleValidationErrors = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            message: '입력값이 올바르지 않습니다.', 
+            errors: errors.array().map(e => ({ field: e.param, message: e.msg }))
+        });
+    }
+    next();
+};
+
+
 // --- 사용자 (Users) API ---
 
 // 회원가입
-router.post('/users/register', async (req, res) => {
+router.post('/users/register', [
+    body('username')
+        .isEmail().withMessage('유효한 이메일 주소를 입력해주세요.')
+        .isLength({ max: 255 }).withMessage('아이디는 최대 255자까지 가능합니다.'),
+    body('password')
+        .isLength({ min: 8, max: 255 }).withMessage('비밀번호는 8자 이상, 255자 이하이어야 합니다.'),
+    body('nickname')
+        .not().isEmpty().withMessage('닉네임을 입력해주세요.')
+        .trim()
+        .isLength({ max: 255 }).withMessage('닉네임은 최대 255자까지 가능합니다.'),
+    handleValidationErrors
+], async (req, res) => {
     const { username, password, nickname } = req.body;
-    if (!username || !password || !nickname) {
-        return res.status(400).json({ message: '모든 필드를 입력해주세요.' });
-    }
     try {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         await pool.query(
@@ -32,11 +54,12 @@ router.post('/users/register', async (req, res) => {
 });
 
 // 로그인
-router.post('/users/login', async (req, res) => {
+router.post('/users/login', [
+    body('username', '아이디를 입력해주세요.').not().isEmpty(),
+    body('password', '비밀번호를 입력해주세요.').not().isEmpty(),
+    handleValidationErrors
+], async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });
-    }
     try {
         const [users] = await pool.query('SELECT * FROM Users WHERE username = ?', [username]);
         if (users.length === 0) {
@@ -119,11 +142,11 @@ router.get('/todos', authenticateToken, async (req, res) => {
 });
 
 // 새로운 할 일 생성
-router.post('/todos', authenticateToken, async (req, res) => {
+router.post('/todos', authenticateToken, [
+    body('content', '내용을 입력하세요.').not().isEmpty().trim(),
+    handleValidationErrors
+], async (req, res) => {
     const { content } = req.body;
-    if (!content) {
-        return res.status(400).json({ message: '내용을 입력하세요.' });
-    }
     try {
         const [result] = await pool.query('INSERT INTO Todos (content, user_id) VALUES (?, ?)', [content, req.user.id]);
         res.status(201).json({ message: '할 일 추가 성공', todoId: result.insertId });
@@ -150,7 +173,13 @@ router.get('/todos/:id', authenticateToken, async (req, res) => {
 
 
 // 할 일 정보 업데이트 (전체 필드)
-router.put('/todos/:id', authenticateToken, async (req, res) => {
+router.put('/todos/:id', authenticateToken, [
+    body('content').optional({ checkFalsy: true }).trim(),
+    body('is_completed').optional().isBoolean().withMessage('is_completed 값은 true 또는 false여야 합니다.'),
+    body('due_date').optional({ nullable: true }).isISO8601().withMessage('due_date가 유효한 날짜 형식이 아닙니다.'),
+    body('is_important').optional().isBoolean().withMessage('is_important 값은 true 또는 false여야 합니다.'),
+    handleValidationErrors
+], async (req, res) => {
     const { id } = req.params;
     const { content, is_completed, due_date, is_important } = req.body;
 
@@ -185,7 +214,6 @@ router.delete('/todos/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
 
     try {
-        // 해당 할 일이 현재 사용자의 것인지 확인하는 로직 추가 (보안 강화)
         const [todos] = await pool.query('SELECT * FROM Todos WHERE id = ? AND user_id = ?', [id, req.user.id]);
         if (todos.length === 0) {
             return res.status(404).json({ message: '해당 할 일을 찾을 수 없거나 권한이 없습니다.' });
@@ -213,11 +241,11 @@ router.get('/tags', authenticateToken, async (req, res) => {
 });
 
 // 새로운 태그 생성
-router.post('/tags', authenticateToken, async (req, res) => {
+router.post('/tags', authenticateToken, [
+    body('name', '태그 이름을 입력하세요.').not().isEmpty().trim(),
+    handleValidationErrors
+], async (req, res) => {
     const { name } = req.body;
-    if (!name) {
-        return res.status(400).json({ message: '태그 이름을 입력하세요.' });
-    }
     try {
         const [result] = await pool.query('INSERT INTO Tags (name, user_id) VALUES (?, ?)', [name, req.user.id]);
         res.status(201).json({ message: '태그 생성 성공', tagId: result.insertId });
@@ -234,7 +262,6 @@ router.post('/tags', authenticateToken, async (req, res) => {
 router.delete('/tags/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
-        // 해당 태그가 현재 사용자의 것인지 확인
         const [tags] = await pool.query('SELECT * FROM Tags WHERE id = ? AND user_id = ?', [id, req.user.id]);
         if (tags.length === 0) {
             return res.status(404).json({ message: '해당 태그를 찾을 수 없거나 권한이 없습니다.' });

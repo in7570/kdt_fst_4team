@@ -31,11 +31,15 @@
                         <button class="nav-btn">&gt;</button>
                     </div>
                     <div class="sidebar">
-                        <div class="tabs">
-                            <div class="tab active">업무</div>
-                            <div class="tab">업무</div>
-                            <div class="tab">업무</div>
-                        </div>
+                        <h4>태그</h4>
+                        <ul id="tag-list">
+                            <li><a href="#" id="filter-all" class="active">전체</a></li>
+                            <li><a href="#" id="filter-today">오늘</a></li>
+                            <li><a href="#" id="filter-important">중요</a></li>
+                            <!-- 자바스크립트로 사용자 태그 목록이 여기에 렌더링됩니다. -->
+                        </ul>
+                        <hr>
+                        <button id="manage-tags-btn" class="manage-btn">태그 관리</button>
                     </div>
                     <div class="todo-container">
                         <form id="todo-form" class="add-todo">
@@ -52,6 +56,22 @@
             </div>
         </main>
     </div>
+
+    <!-- 태그 관리 모달 -->
+    <div id="tag-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span id="close-modal-btn" class="close-btn">&times;</span>
+            <h2>태그 관리</h2>
+            <ul id="modal-tag-list">
+                <!-- 태그 관리 목록이 여기에 렌더링됩니다. -->
+            </ul>
+            <form id="tag-form" class="add-tag-form">
+                <input type="text" id="tag-input" placeholder="새 태그 추가...">
+                <button type="submit">+</button>
+            </form>
+        </div>
+    </div>
+
     <script src="/js/main.js"></script>
 </body>
 </html>

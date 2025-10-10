@@ -329,3 +329,192 @@ main {
     font-size: 16px;
     cursor: pointer;
 }
+
+/* --- 사이드바 태그/필터 --- */
+.sidebar h4 {
+    margin-top: 15px;
+    margin-bottom: 10px; /* h4와 태그 목록 사이 간격 조정 */
+    padding: 0 8px;
+    color: #555;
+    font-size: 14px;
+}
+.sidebar hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+/* 태그 목록 가로 정렬 및 스타일 */
+#tag-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 4px; /* 좌우 여백 */
+}
+
+#tag-list li {
+    margin: 4px;
+}
+
+#tag-list li a {
+    display: inline-block;
+    padding: 6px 12px;
+    text-decoration: none;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 16px; /* 둥근 모서리 */
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+#tag-list li a:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+#tag-list li a.active {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border-color: #3498db;
+}
+
+
+.delete-tag-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px;
+    visibility: hidden;
+}
+
+#tag-list li:hover .delete-tag-btn {
+    visibility: visible;
+}
+.delete-tag-btn:hover {
+    color: #ff0000;
+}
+
+.add-tag-form {
+    display: flex;
+    margin-top: 15px; /* 태그 목록과의 간격 */
+    padding: 0 8px;
+}
+
+#tag-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.add-tag-form button {
+    padding: 8px 12px;
+    background-color: #ccc;
+    border: none;
+    border-radius: 5px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.manage-btn {
+    width: calc(100% - 16px);
+    margin: 15px 8px 5px 8px;
+    padding: 10px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.manage-btn:hover {
+    background-color: #5a6268;
+}
+
+
+/* --- 모달 스타일 --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-content .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.modal-content .close-btn:hover {
+    color: #333;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#modal-tag-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px; /* 태그 추가 폼과의 간격 */
+}
+
+#modal-tag-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#modal-tag-list li:last-child {
+    border-bottom: none;
+}
+
+#modal-tag-list .tag-name-span {
+    cursor: pointer;
+}
+
+#modal-tag-list .delete-tag-modal-btn {
+    background: none;
+    border: none;
+    color: #ff4d4d;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 숨김 클래스 */
+.hidden {
+    display: none;
+}

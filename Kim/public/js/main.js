@@ -247,9 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 태그 목록 렌더링 함수
     const renderTags = (tags) => {
         if (!tagList) return;
-        tagList.innerHTML = ''; // 목록 초기화
+        // 기존의 사용자 태그만 삭제 (고정 필터는 유지)
+        tagList.querySelectorAll('li.user-tag').forEach(li => li.remove());
+
         tags.forEach(tag => {
             const li = document.createElement('li');
+            li.classList.add('user-tag'); // 사용자 태그 식별용 클래스 추가
+
             const a = document.createElement('a');
             a.href = '#';
             a.textContent = tag.name;
@@ -261,23 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateActiveFilter(a);
             });
 
-            const deleteTagBtn = document.createElement('button');
-            deleteTagBtn.textContent = 'X';
-            deleteTagBtn.classList.add('delete-tag-btn'); // 스타일링을 위한 클래스
-            deleteTagBtn.addEventListener('click', async () => {
-                if (confirm(`태그 '${tag.name}'을(를) 삭제하시겠습니까?`)) {
-                    await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
-                        method: 'DELETE',
-                        headers: getAuthHeaders()
-                    });
-                    fetchTags(); // 태그 목록 새로고침
-                    currentFilter = {}; // 필터 초기화
-                    fetchTodos(); // 전체 할 일 목록 새로고침
-                }
-            });
-
             li.appendChild(a);
-            li.appendChild(deleteTagBtn);
             tagList.appendChild(li);
         });
     };
@@ -366,14 +354,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!name) return;
 
-                await fetch(`${apiBaseUrl}/tags`, {
-                    method: 'POST',
-                    headers: getAuthHeaders(),
-                    body: JSON.stringify({ name })
-                });
-
-                tagInput.value = '';
-                fetchTags(); // 태그 목록 새로고침
+                try {
+                    const response = await fetch(`${apiBaseUrl}/tags`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ name })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Failed to create tag');
+                    
+                    tagInput.value = '';
+                    fetchTags(); // 사이드바 태그 목록 새로고침
+                    fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                } catch (error) {
+                    console.error('Error creating tag:', error);
+                    alert(`태그 생성 실패: ${error.message}`);
+                }
             });
         }
 
@@ -427,5 +423,128 @@ document.addEventListener('DOMContentLoaded', () => {
             todoInput.value = '';
             fetchTodos(currentFilter);
         });
+
+        // --- 태그 관리 모달 ---
+        const tagModal = document.getElementById('tag-modal');
+        const manageTagsBtn = document.getElementById('manage-tags-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalTagList = document.getElementById('modal-tag-list');
+
+        // 모달 열기
+        manageTagsBtn.addEventListener('click', () => {
+            tagModal.classList.remove('hidden');
+            fetchAndRenderTagsForModal();
+        });
+
+        // 모달 닫기
+        closeModalBtn.addEventListener('click', () => {
+            tagModal.classList.add('hidden');
+        });
+
+        tagModal.addEventListener('click', (e) => {
+            if (e.target === tagModal) { // 오버레이 클릭 시 닫기
+                tagModal.classList.add('hidden');
+            }
+        });
+
+        // 모달용 태그 목록 불러오기 및 렌더링
+        const fetchAndRenderTagsForModal = async () => {
+            try {
+                const response = await fetch(`${apiBaseUrl}/tags`, { headers: getAuthHeaders() });
+                if (!response.ok) throw new Error('Failed to fetch tags');
+                const tags = await response.json();
+                renderTagsInModal(tags);
+            } catch (error) {
+                console.error('Error fetching tags for modal:', error);
+                modalTagList.innerHTML = '<li>태그를 불러오는 데 실패했습니다.</li>';
+            }
+        };
+
+        // 모달에 태그 목록 렌더링
+        const renderTagsInModal = (tags) => {
+            modalTagList.innerHTML = '';
+            tags.forEach(tag => {
+                const li = document.createElement('li');
+                li.dataset.tagId = tag.id;
+
+                const tagNameSpan = document.createElement('span');
+                tagNameSpan.className = 'tag-name-span';
+                tagNameSpan.textContent = tag.name;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-tag-modal-btn';
+                deleteBtn.textContent = '삭제';
+
+                li.appendChild(tagNameSpan);
+                li.appendChild(deleteBtn);
+                modalTagList.appendChild(li);
+
+                // 삭제 이벤트 리스너
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm(`'${tag.name}' 태그를 정말 삭제하시겠습니까?`)) {
+                        try {
+                            const response = await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
+                                method: 'DELETE',
+                                headers: getAuthHeaders()
+                            });
+                            if (!response.ok) throw new Error('Failed to delete tag');
+                            
+                            // 성공 시 UI 동기화
+                            fetchTags(); // 사이드바 태그 목록 새로고침
+                            fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                        } catch (error) {
+                            console.error('Error deleting tag:', error);
+                            alert('태그 삭제에 실패했습니다.');
+                        }
+                    }
+                });
+
+                // 수정 이벤트 리스너 (span 더블클릭)
+                tagNameSpan.addEventListener('dblclick', () => {
+                    const currentName = tagNameSpan.textContent;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = currentName;
+                    li.replaceChild(input, tagNameSpan);
+                    input.focus();
+
+                    const saveTagChanges = async () => {
+                        const newName = input.value.trim();
+                        if (!newName || newName === currentName) {
+                            li.replaceChild(tagNameSpan, input); // 변경 없으면 원상복구
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
+                                method: 'PUT',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({ name: newName })
+                            });
+
+                            const result = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Failed to update tag');
+                            }
+                            
+                            // 성공 시 UI 동기화
+                            fetchTags(); // 사이드바 태그 목록 새로고침
+                            fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                        } catch (error) {
+                            console.error('Error updating tag:', error);
+                            alert(`태그 수정 실패: ${error.message}`);
+                            li.replaceChild(tagNameSpan, input); // 실패 시 원상복구
+                        }
+                    };
+
+                    input.addEventListener('blur', saveTagChanges);
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') input.blur();
+                        if (e.key === 'Escape') li.replaceChild(tagNameSpan, input);
+                    });
+                });
+            });
+        };
     }
 });

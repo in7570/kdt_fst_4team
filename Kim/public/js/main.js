@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const user = parseJwt(token);
         if (user && userNicknameSpan) {
-            userNicknameSpan.textContent = user.nickname || user.username;
+            userNicknameSpan.textContent = (user.nickname || user.username) + ' 님';
         }
 
         if (logoutBtn) {

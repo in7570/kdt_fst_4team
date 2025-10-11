@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const apiRouter = require('./routes/api');
@@ -5,7 +6,7 @@ const initializeDatabase = require('./init-db');
 const pool = require('./db'); // graceful shutdown을 위해 pool 가져오기
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // JSON 및 URL-encoded 바디 파서 설정
 app.use(express.json());

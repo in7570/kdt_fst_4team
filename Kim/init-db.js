@@ -2,12 +2,12 @@ const mysql = require('mysql2/promise');
 const pool = require('./db');
 
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: 'root'
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'root'
 };
 
-const dbName = 'todolist_db';
+const dbName = process.env.DB_NAME || 'todolist_db';
 
 const initializeDatabase = async () => {
     let connection;

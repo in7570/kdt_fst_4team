@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const saltRounds = 10;
-const jwtSecret = 'your_jwt_secret'; // 실제 프로덕션에서는 환경 변수로 관리해야 합니다.
+const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret'; // 실제 프로덕션에서는 환경 변수로 관리해야 합니다.
 
 // 유효성 검사 에러를 처리하는 미들웨어
 const handleValidationErrors = (req, res, next) => {

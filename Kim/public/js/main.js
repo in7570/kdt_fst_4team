@@ -7,10 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 인증 토큰을 포함한 요청 헤더를 생성하는 함수
     const getAuthHeaders = () => {
-        return {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        };
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        return headers;
     };
 
     // JWT 페이로드를 디코딩하는 함수 (닉네임 표시용)
@@ -38,137 +39,105 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 회원 관리 ---
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
+    // --- 범용 폼 제출 핸들러 ---
+    const handleFormSubmit = (formId, apiUrl, options = {}) => {
+        const form = document.getElementById(formId);
+        if (!form) return;
 
-            try {
-                const response = await fetch(`${apiBaseUrl}/users/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
+        const { method = 'POST', getPayload, onSuccess, preSubmitValidation } = options;
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('token', result.token); // JWT 저장
-                    window.location.href = '/index.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('로그인 중 오류:', error);
-                alert('로그인 중 오류가 발생했습니다.');
-            }
-        });
-    }
-
-    const registerForm = document.getElementById('register-form');
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            const nickname = e.target.nickname.value;
-            const passwordConfirm = e.target['password-confirm'].value;
-
-            if (password !== passwordConfirm) {
-                alert('비밀번호가 일치하지 않습니다.');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/users/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, nickname })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert('회원가입 성공! 로그인 페이지로 이동합니다.');
-                    window.location.href = '/login.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('회원가입 중 오류:', error);
-                alert('회원가입 중 오류가 발생했습니다.');
-            }
-        });
-    }
-
-    const forgotPasswordForm = document.getElementById('forgot-password-form');
-    if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const nickname = e.target.nickname.value;
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/users/find-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, nickname })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(`임시 비밀번호는 ${result.tempPassword} 입니다. 로그인 후 비밀번호를 변경해주세요.`);
-                    window.location.href = '/login.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('비밀번호 찾기 중 오류:', error);
-                alert('비밀번호를 찾는 중 오류가 발생했습니다.');
-            }
-        });
-    }
-
-    const changePasswordForm = document.getElementById('change-password-form');
-    if (changePasswordForm) {
-        changePasswordForm.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const currentPassword = e.target['current-password'].value;
-            const newPassword = e.target['new-password'].value;
-            const newPasswordConfirm = e.target['new-password-confirm'].value;
-
-            if (newPassword !== newPasswordConfirm) {
-                alert('새 비밀번호가 일치하지 않습니다.');
-                return;
+            if (preSubmitValidation && !preSubmitValidation(form)) {
+                return; // 유효성 검사 실패 시 중단
             }
 
+            const payload = getPayload(form);
+
             try {
-                const response = await fetch(`${apiBaseUrl}/users/change-password`, {
-                    method: 'PUT',
+                const response = await fetch(apiUrl, {
+                    method: method,
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({ currentPassword, newPassword })
+                    body: JSON.stringify(payload)
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요.');
-                    localStorage.removeItem('token');
-                    window.location.href = '/login.html';
+                    if (onSuccess) onSuccess(result);
                 } else {
-                    alert(result.message);
+                    alert(result.message || '오류가 발생했습니다.');
                 }
             } catch (error) {
-                console.error('비밀번호 변경 중 오류:', error);
-                alert('비밀번호 변경 중 오류가 발생했습니다.');
+                console.error(`${formId} 처리 중 오류:`, error);
+                alert('오류가 발생했습니다.');
             }
         });
-    }
+    };
+
+    // --- 회원 관리 (리팩토링된 폼 처리) ---
+    handleFormSubmit('login-form', `${apiBaseUrl}/users/login`, {
+        getPayload: (form) => ({
+            username: form.username.value,
+            password: form.password.value
+        }),
+        onSuccess: (result) => {
+            localStorage.setItem('token', result.token);
+            window.location.href = '/index.html';
+        }
+    });
+
+    handleFormSubmit('register-form', `${apiBaseUrl}/users/register`, {
+        preSubmitValidation: (form) => {
+            if (form.password.value !== form['password-confirm'].value) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+            return true;
+        },
+        getPayload: (form) => ({
+            username: form.username.value,
+            password: form.password.value,
+            nickname: form.nickname.value
+        }),
+        onSuccess: () => {
+            alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+            window.location.href = '/login.html';
+        }
+    });
+
+    handleFormSubmit('forgot-password-form', `${apiBaseUrl}/users/find-password`, {
+        getPayload: (form) => ({
+            username: form.username.value,
+            nickname: form.nickname.value
+        }),
+        onSuccess: (result) => {
+            alert(`임시 비밀번호는 ${result.tempPassword} 입니다. 로그인 후 비밀번호를 변경해주세요.`);
+            window.location.href = '/login.html';
+        }
+    });
+
+    handleFormSubmit('change-password-form', `${apiBaseUrl}/users/change-password`, {
+        method: 'PUT',
+        preSubmitValidation: (form) => {
+            if (form['new-password'].value !== form['new-password-confirm'].value) {
+                alert('새 비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+            return true;
+        },
+        getPayload: (form) => ({
+            currentPassword: form['current-password'].value,
+            newPassword: form['new-password'].value
+        }),
+        onSuccess: () => {
+            alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요.');
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        }
+    });
+
 
     // --- 메인 페이지 (투두리스트) ---
     const todoForm = document.getElementById('todo-form');
@@ -203,93 +172,114 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const renderTodos = (todos) => {
-            if (!todoList) return;
-            todoList.innerHTML = '';
-            todos.forEach(todo => {
-                const li = document.createElement('li');
-                li.dataset.id = todo.id;
-                if (todo.is_completed) {
-                    li.classList.add('checked');
+        // --- 투두리스트 렌더링 로직 (리팩토링) ---
+
+        // 1. 할 일(Todo) DOM 엘리먼트 생성
+        const createTodoElement = (todo) => {
+            const li = document.createElement('li');
+            li.dataset.id = todo.id;
+            if (todo.is_completed) {
+                li.classList.add('checked');
+            }
+            li.innerHTML = `
+                <div class="checkbox-container">
+                    <div class="checkbox"></div>
+                    <span>${todo.content}</span>
+                </div>
+                <button class="delete-btn">×</button>
+            `;
+            return li;
+        };
+
+        // 2. 할 일(Todo) 엘리먼트에 이벤트 리스너 추가
+        const attachTodoEventListeners = (li, todo) => {
+            const checkboxContainer = li.querySelector('.checkbox-container');
+            const deleteBtn = li.querySelector('.delete-btn');
+            const span = li.querySelector('span');
+
+            // 완료/미완료 처리
+            checkboxContainer.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const isCompleted = !li.classList.contains('checked');
+                try {
+                    await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                        method: 'PUT',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ is_completed: isCompleted })
+                    });
+                    li.classList.toggle('checked');
+                } catch (error) {
+                    console.error('Error updating todo:', error);
+                    alert('항목 업데이트에 실패했습니다.');
                 }
-                li.innerHTML = `
-                    <div class="checkbox-container">
-                        <div class="checkbox"></div>
-                        <span>${todo.content}</span>
-                    </div>
-                    <button class="delete-btn">×</button>
-                `;
-                const checkboxContainer = li.querySelector('.checkbox-container');
-                checkboxContainer.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const isCompleted = !li.classList.contains('checked');
+            });
+
+            // 삭제 처리
+            deleteBtn.addEventListener('click', async () => {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                        method: 'DELETE',
+                        headers: getAuthHeaders()
+                    });
+                    li.remove();
+                }
+            });
+
+            // 더블클릭으로 수정 처리
+            span.addEventListener('click', (e) => e.stopPropagation());
+            span.addEventListener('dblclick', () => {
+                const currentContent = span.textContent;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentContent;
+                input.addEventListener('click', (e) => e.stopPropagation());
+                
+                const checkboxDiv = li.querySelector('.checkbox-container');
+                checkboxDiv.replaceChild(input, span);
+                input.focus();
+
+                const saveChanges = async () => {
+                    const newContent = input.value.trim();
+                    if (!newContent || newContent === currentContent) {
+                        checkboxDiv.replaceChild(span, input);
+                        return;
+                    }
                     try {
                         await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                             method: 'PUT',
                             headers: getAuthHeaders(),
-                            body: JSON.stringify({ is_completed: isCompleted })
+                            body: JSON.stringify({ content: newContent })
                         });
-                        li.classList.toggle('checked');
+                        span.textContent = newContent;
                     } catch (error) {
-                        console.error('Error updating todo:', error);
-                        alert('항목 업데이트에 실패했습니다.');
+                        console.error('Error updating content:', error);
+                        alert('내용 수정에 실패했습니다.');
+                    } finally {
+                        checkboxDiv.replaceChild(span, input);
+                    }
+                };
+
+                input.addEventListener('blur', saveChanges);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') input.blur();
+                    else if (e.key === 'Escape') {
+                        checkboxDiv.replaceChild(span, input);
                     }
                 });
-                const deleteBtn = li.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', async () => {
-                    if (confirm('정말 삭제하시겠습니까?')) {
-                        await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                            method: 'DELETE',
-                            headers: getAuthHeaders()
-                        });
-                        li.remove();
-                    }
-                });
-                const span = li.querySelector('span');
-                span.addEventListener('click', (e) => e.stopPropagation());
-                span.addEventListener('dblclick', () => {
-                    const currentContent = span.textContent;
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = currentContent;
-                    input.addEventListener('click', (e) => e.stopPropagation());
-                    span.style.display = 'none';
-                    checkboxContainer.appendChild(input);
-                    input.focus();
-                    const saveChanges = async () => {
-                        const newContent = input.value.trim();
-                        if (!newContent || newContent === currentContent) {
-                            input.remove();
-                            span.style.display = '';
-                            return;
-                        }
-                        try {
-                            await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                                method: 'PUT',
-                                headers: getAuthHeaders(),
-                                body: JSON.stringify({ content: newContent })
-                            });
-                            span.textContent = newContent;
-                        } catch (error) {
-                            console.error('Error updating content:', error);
-                            alert('내용 수정에 실패했습니다.');
-                        } finally {
-                            input.remove();
-                            span.style.display = '';
-                        }
-                    };
-                    input.addEventListener('blur', saveChanges);
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') input.blur();
-                        else if (e.key === 'Escape') {
-                            input.remove();
-                            span.style.display = '';
-                        }
-                    });
-                });
+            });
+        };
+
+        // 3. 전체 할 일 목록 렌더링 (재구성된 함수)
+        const renderTodos = (todos) => {
+            if (!todoList) return;
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const li = createTodoElement(todo);
+                attachTodoEventListeners(li, todo);
                 todoList.appendChild(li);
             });
         };
+
 
         const renderTags = (tags) => {
             if (!tagList) return;

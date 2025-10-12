@@ -12,8 +12,8 @@ const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret'; // 실제 프로�
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ 
-            message: '입력값이 올바르지 않습니다.', 
+        return res.status(400).json({
+            message: '입력값이 올바르지 않습니다.',
             errors: errors.array().map(e => ({ field: e.param, message: e.msg }))
         });
     }
@@ -302,11 +302,23 @@ router.get('/tags', authenticateToken, async (req, res) => {
 // 새로운 태그 생성
 router.post('/tags', authenticateToken, [
     body('name', '태그 이름을 입력하세요.').not().isEmpty().trim(),
+    body('color').optional().isHexColor().withMessage('유효한 색상 코드를 입력해주세요.'),
     handleValidationErrors
 ], async (req, res) => {
-    const { name } = req.body;
+    const { name, color } = req.body;
+    const userId = req.user.id;
     try {
-        const [result] = await pool.query('INSERT INTO Tags (name, user_id) VALUES (?, ?)', [name, req.user.id]);
+        if (color) {
+            const [existing] = await pool.query('SELECT id FROM Tags WHERE color = ? AND user_id = ?', [color, userId]);
+            if (existing.length > 0) {
+                return res.status(409).json({ message: '이미 사용 중인 색상입니다.' });
+            }
+        }
+
+        const [result] = await pool.query(
+            'INSERT INTO Tags (name, user_id, color) VALUES (?, ?, COALESCE(?, DEFAULT(color)))',
+            [name, userId, color]
+        );
         res.status(201).json({ message: '태그 생성 성공', tagId: result.insertId });
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
@@ -319,26 +331,49 @@ router.post('/tags', authenticateToken, [
 
 // 태그 수정
 router.put('/tags/:id', authenticateToken, [
-    body('name', '태그 이름은 비워둘 수 없습니다.').not().isEmpty().trim(),
+    body('name').optional().not().isEmpty().withMessage('태그 이름은 비워둘 수 없습니다.').trim(),
+    body('color').optional().isHexColor().withMessage('유효한 색상 코드를 입력해주세요.'),
     handleValidationErrors
 ], async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, color } = req.body;
     const userId = req.user.id;
 
+    if (!name && !color) {
+        return res.status(400).json({ message: '수정할 내용이 없습니다.' });
+    }
+
     try {
-        // 1. 태그가 사용자의 것인지 확인
         const [tags] = await pool.query('SELECT * FROM Tags WHERE id = ? AND user_id = ?', [id, userId]);
         if (tags.length === 0) {
             return res.status(404).json({ message: '해당 태그를 찾을 수 없거나 권한이 없습니다.' });
         }
 
-        // 2. 태그 이름 업데이트
-        await pool.query('UPDATE Tags SET name = ? WHERE id = ?', [name, id]);
+        if (color) {
+            const [existing] = await pool.query('SELECT id FROM Tags WHERE color = ? AND user_id = ? AND id != ?', [color, userId, id]);
+            if (existing.length > 0) {
+                return res.status(409).json({ message: '이미 사용 중인 색상입니다.' });
+            }
+        }
+
+        const setClauses = [];
+        const queryParams = [];
+        if (name) {
+            setClauses.push('name = ?');
+            queryParams.push(name);
+        }
+        if (color) {
+            setClauses.push('color = ?');
+            queryParams.push(color);
+        }
+
+        const sql = `UPDATE Tags SET ${setClauses.join(', ')} WHERE id = ? AND user_id = ?`;
+        queryParams.push(id, userId);
+
+        await pool.query(sql, queryParams);
 
         res.json({ message: `태그 #${id} 업데이트 성공` });
     } catch (error) {
-        // 3. 중복된 태그 이름 오류 처리
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ message: '이미 존재하는 태그 이름입니다.' });
         }

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 공통 변수 및 함수 ---
     const apiBaseUrl = '/api';
     const token = localStorage.getItem('token');
+    const COLOR_PALETTE = ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF', '#FADADD', '#E0E0E0'];
 
     // 인증 토큰을 포함한 요청 헤더를 생성하는 함수
     const getAuthHeaders = () => {
@@ -161,7 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = '/login.html';
                 } else {
                     alert(result.message);
-                }            } catch (error) {
+                }
+            } catch (error) {
                 console.error('비밀번호 변경 중 오류:', error);
                 alert('비밀번호 변경 중 오류가 발생했습니다.');
             }
@@ -180,37 +182,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (userProfileImg) {
             userProfileImg.addEventListener('click', (e) => {
-                e.stopPropagation(); // 드롭다운 토글 시 이벤트 전파를 막아 window 리스너에 닿지 않게 함
+                e.stopPropagation();
                 dropdown.classList.toggle('show');
             });
         }
 
-        // 드롭다운 자체를 클릭했을 때 이벤트 전파를 막아, 내부 링크 클릭이 window 리스너를 발동시키지 않게 함
         if (dropdown) {
             dropdown.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
         }
 
-        // 화면의 다른 곳을 클릭하면 드롭다운을 닫음
         window.addEventListener('click', () => {
             if (dropdown && dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
             }
+            const colorPalette = document.getElementById('color-palette');
+            if (colorPalette && !colorPalette.classList.contains('hidden')) {
+                colorPalette.classList.add('hidden');
+            }
         });
 
-        // 할 일 목록 렌더링 함수
         const renderTodos = (todos) => {
             if (!todoList) return;
-            todoList.innerHTML = ''; // 목록 초기화
+            todoList.innerHTML = '';
             todos.forEach(todo => {
                 const li = document.createElement('li');
                 li.dataset.id = todo.id;
                 if (todo.is_completed) {
                     li.classList.add('checked');
                 }
-
-                // innerHTML을 사용하여 복잡한 구조를 한 번에 생성
                 li.innerHTML = `
                     <div class="checkbox-container">
                         <div class="checkbox"></div>
@@ -218,28 +219,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <button class="delete-btn">×</button>
                 `;
-
-                // 체크박스 클릭 시 완료/미완료 처리
                 const checkboxContainer = li.querySelector('.checkbox-container');
                 checkboxContainer.addEventListener('click', async (e) => {
-                    e.stopPropagation(); 
-                    
+                    e.stopPropagation();
                     const isCompleted = !li.classList.contains('checked');
                     try {
-                        const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                        await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                             method: 'PUT',
                             headers: getAuthHeaders(),
                             body: JSON.stringify({ is_completed: isCompleted })
                         });
-                        if (!response.ok) throw new Error('Todo update failed');
                         li.classList.toggle('checked');
                     } catch (error) {
                         console.error('Error updating todo:', error);
                         alert('항목 업데이트에 실패했습니다.');
                     }
                 });
-
-                // 삭제 버튼 이벤트 리스너 추가
                 const deleteBtn = li.querySelector('.delete-btn');
                 deleteBtn.addEventListener('click', async () => {
                     if (confirm('정말 삭제하시겠습니까?')) {
@@ -250,43 +245,30 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.remove();
                     }
                 });
-
-                // 할 일 내용(span) 더블클릭 시 수정 기능
                 const span = li.querySelector('span');
-                span.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-
+                span.addEventListener('click', (e) => e.stopPropagation());
                 span.addEventListener('dblclick', () => {
                     const currentContent = span.textContent;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.value = currentContent;
-                    
-                    input.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                    });
-
+                    input.addEventListener('click', (e) => e.stopPropagation());
                     span.style.display = 'none';
                     checkboxContainer.appendChild(input);
                     input.focus();
-
                     const saveChanges = async () => {
                         const newContent = input.value.trim();
-                        
                         if (!newContent || newContent === currentContent) {
                             input.remove();
                             span.style.display = '';
                             return;
                         }
-
                         try {
-                            const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                            await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                                 method: 'PUT',
                                 headers: getAuthHeaders(),
                                 body: JSON.stringify({ content: newContent })
                             });
-                            if (!response.ok) throw new Error('Update failed');
                             span.textContent = newContent;
                         } catch (error) {
                             console.error('Error updating content:', error);
@@ -296,42 +278,38 @@ document.addEventListener('DOMContentLoaded', () => {
                             span.style.display = '';
                         }
                     };
-
                     input.addEventListener('blur', saveChanges);
                     input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            input.blur();
-                        } else if (e.key === 'Escape') {
+                        if (e.key === 'Enter') input.blur();
+                        else if (e.key === 'Escape') {
                             input.remove();
                             span.style.display = '';
                         }
                     });
                 });
-
                 todoList.appendChild(li);
             });
         };
 
-        // 태그 목록 렌더링 함수
         const renderTags = (tags) => {
             if (!tagList) return;
             tagList.querySelectorAll('li.user-tag').forEach(li => li.remove());
-
             tags.forEach(tag => {
                 const li = document.createElement('li');
                 li.classList.add('user-tag');
-
                 const a = document.createElement('a');
                 a.href = '#';
                 a.textContent = tag.name;
                 a.dataset.tagId = tag.id;
+                a.style.backgroundColor = tag.color;
+                a.style.borderColor = tag.color;
+                a.style.color = '#fff';
                 a.addEventListener('click', (e) => {
                     e.preventDefault();
                     currentFilter = { tag_id: tag.id };
                     fetchTodos(currentFilter);
                     updateActiveFilter(a);
                 });
-
                 li.appendChild(a);
                 tagList.appendChild(li);
             });
@@ -339,45 +317,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let currentFilter = {};
 
-        // 할 일 목록 불러오기 (필터 객체 사용)
         const fetchTodos = async (filter = {}) => {
             currentFilter = filter;
             let url = new URL(`${window.location.origin}${apiBaseUrl}/todos`);
             Object.keys(filter).forEach(key => url.searchParams.append(key, filter[key]));
-
             try {
-                const response = await fetch(url, {
-                    headers: getAuthHeaders()
-                });
-                
+                const response = await fetch(url, { headers: getAuthHeaders() });
                 if (response.status === 401 || response.status === 403) {
                     alert('인증 정보가 유효하지 않습니다. 다시 로그인해주세요.');
                     localStorage.removeItem('token');
                     window.location.href = '/login.html';
                     return;
                 }
-
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
-                }
                 const todos = await response.json();
                 renderTodos(todos);
             } catch (error) {
                 console.error('할 일 목록을 불러오는 데 실패했습니다:', error);
-                if (todoList) todoList.innerHTML = '<li>목록을 불러오는 데 실패했습니다.</li>';
             }
         };
 
-        // 태그 목록 불러오기
         const fetchTags = async () => {
             if (!tagList) return;
             try {
-                const response = await fetch(`${apiBaseUrl}/tags`, {
-                    headers: getAuthHeaders()
-                });
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
-                }
+                const response = await fetch(`${apiBaseUrl}/tags`, { headers: getAuthHeaders() });
                 const tags = await response.json();
                 renderTags(tags);
             } catch (error) {
@@ -385,15 +347,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // 활성 필터 UI 업데이트
         const updateActiveFilter = (clickedElement) => {
             document.querySelectorAll('.sidebar a.active').forEach(el => el.classList.remove('active'));
-            if (clickedElement) {
-                clickedElement.classList.add('active');
-            }
+            if (clickedElement) clickedElement.classList.add('active');
         };
 
-        // 메인 페이지 전용 로직
         if (!token) {
             window.location.href = '/login.html';
             return;
@@ -404,204 +362,200 @@ document.addEventListener('DOMContentLoaded', () => {
             userNicknameSpan.textContent = (user.nickname || user.username) + ' 님';
         }
 
-        // 태그 생성 폼 처리
-        if (tagForm) {
-            tagForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const tagInput = document.getElementById('tag-input');
-                const name = tagInput.value.trim();
-
-                if (!name) return;
-
-                try {
-                    const response = await fetch(`${apiBaseUrl}/tags`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({ name })
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.message || 'Failed to create tag');
-                    
-                    tagInput.value = '';
-                    fetchTags();
-                    fetchAndRenderTagsForModal();
-                } catch (error) {
-                    console.error('Error creating tag:', error);
-                    alert(`태그 생성 실패: ${error.message}`);
-                }
-            });
-        }
-
-        // 사이드바 필터 이벤트 리스너
-        const filterAll = document.getElementById('filter-all');
-        if (filterAll) {
-            filterAll.addEventListener('click', (e) => {
-                e.preventDefault();
-                fetchTodos({});
-                updateActiveFilter(e.target);
-            });
-        }
-        const filterToday = document.getElementById('filter-today');
-        if (filterToday) {
-            filterToday.addEventListener('click', (e) => {
-                e.preventDefault();
-                fetchTodos({ filter: 'today' });
-                updateActiveFilter(e.target);
-            });
-        }
-        const filterImportant = document.getElementById('filter-important');
-        if (filterImportant) {
-            filterImportant.addEventListener('click', (e) => {
-                e.preventDefault();
-                fetchTodos({ is_important: 'true' });
-                updateActiveFilter(e.target);
-            });
-        }
-
-        // 페이지 로드 시 할 일 및 태그 목록 불러오기
-        fetchTodos({});
-        fetchTags();
-        if (filterAll) {
-            updateActiveFilter(filterAll);
-        }
-
-        // 새로운 할 일 추가
-        todoForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const todoInput = document.getElementById('todo-input');
-            const content = todoInput.value.trim();
-
-            if (!content) return;
-
-            await fetch(`${apiBaseUrl}/todos`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({ content })
-            });
-
-            todoInput.value = '';
-            fetchTodos(currentFilter);
-        });
-
-        // --- 태그 관리 모달 ---
         const tagModal = document.getElementById('tag-modal');
         const manageTagsBtn = document.getElementById('manage-tags-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modalTagList = document.getElementById('modal-tag-list');
+        const colorPalette = document.getElementById('color-palette');
 
-        // 모달 열기
         manageTagsBtn.addEventListener('click', () => {
             tagModal.classList.remove('hidden');
             fetchAndRenderTagsForModal();
         });
 
-        // 모달 닫기
-        closeModalBtn.addEventListener('click', () => {
-            tagModal.classList.add('hidden');
-        });
-
+        closeModalBtn.addEventListener('click', () => tagModal.classList.add('hidden'));
         tagModal.addEventListener('click', (e) => {
-            if (e.target === tagModal) { // 오버레이 클릭 시 닫기
-                tagModal.classList.add('hidden');
-            }
+            if (e.target === tagModal) tagModal.classList.add('hidden');
         });
 
-        // 모달용 태그 목록 불러오기 및 렌더링
         const fetchAndRenderTagsForModal = async () => {
             try {
                 const response = await fetch(`${apiBaseUrl}/tags`, { headers: getAuthHeaders() });
-                if (!response.ok) throw new Error('Failed to fetch tags');
                 const tags = await response.json();
                 renderTagsInModal(tags);
             } catch (error) {
                 console.error('Error fetching tags for modal:', error);
-                modalTagList.innerHTML = '<li>태그를 불러오는 데 실패했습니다.</li>';
             }
         };
 
-        // 모달에 태그 목록 렌더링
+        tagForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tagInput = document.getElementById('tag-input');
+            const name = tagInput.value.trim();
+            if (!name) return;
+
+            try {
+                const tagsResponse = await fetch(`${apiBaseUrl}/tags`, { headers: getAuthHeaders() });
+                const existingTags = await tagsResponse.json();
+                const usedColors = existingTags.map(tag => tag.color);
+                const availableColor = COLOR_PALETTE.find(color => !usedColors.includes(color));
+
+                const response = await fetch(`${apiBaseUrl}/tags`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ name, color: availableColor })
+                });
+                if (!response.ok) {
+                    const result = await response.json();
+                    throw new Error(result.message || 'Failed to create tag');
+                }
+                tagInput.value = '';
+                fetchTags();
+                fetchAndRenderTagsForModal();
+            } catch (error) {
+                console.error('Error creating tag:', error);
+                alert(`태그 생성 실패: ${error.message}`);
+            }
+        });
+
+        const showColorPalette = (tag, allTags, targetElement) => {
+            colorPalette.innerHTML = '';
+            const usedColors = allTags.map(t => t.color);
+            const rect = targetElement.getBoundingClientRect();
+            colorPalette.style.top = `${rect.bottom + window.scrollY}px`;
+            colorPalette.style.left = `${rect.left + window.scrollX}px`;
+
+            COLOR_PALETTE.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                const isUsed = usedColors.includes(color) && tag.color !== color;
+                if (isUsed) {
+                    swatch.classList.add('disabled');
+                } else {
+                    swatch.addEventListener('click', async () => {
+                        try {
+                            const response = await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
+                                method: 'PUT',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({ color })
+                            });
+                            if (!response.ok) {
+                                const result = await response.json();
+                                throw new Error(result.message || 'Failed to update color');
+                            }
+                            fetchTags();
+                            fetchAndRenderTagsForModal();
+                        } catch (error) {
+                            alert(`색상 변경 실패: ${error.message}`);
+                        }
+                        colorPalette.classList.add('hidden');
+                    });
+                }
+                colorPalette.appendChild(swatch);
+            });
+            colorPalette.classList.remove('hidden');
+        };
+
         const renderTagsInModal = (tags) => {
             modalTagList.innerHTML = '';
             tags.forEach(tag => {
                 const li = document.createElement('li');
                 li.dataset.tagId = tag.id;
 
+                const colorBox = document.createElement('div');
+                colorBox.className = 'tag-color-box';
+                colorBox.style.backgroundColor = tag.color;
+                colorBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showColorPalette(tag, tags, e.target);
+                });
+
                 const tagNameSpan = document.createElement('span');
                 tagNameSpan.className = 'tag-name-span';
                 tagNameSpan.textContent = tag.name;
-                
+
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-tag-modal-btn';
                 deleteBtn.textContent = '삭제';
 
-                li.appendChild(tagNameSpan);
+                const controls = document.createElement('div');
+                controls.style.display = 'flex';
+                controls.style.alignItems = 'center';
+
+                li.appendChild(controls);
+                controls.appendChild(colorBox);
+                controls.appendChild(tagNameSpan);
                 li.appendChild(deleteBtn);
+
                 modalTagList.appendChild(li);
 
-                // 삭제 이벤트 리스너
                 deleteBtn.addEventListener('click', async () => {
                     if (confirm(`'${tag.name}' 태그를 정말 삭제하시겠습니까?`)) {
                         try {
-                            const response = await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
-                                method: 'DELETE',
-                                headers: getAuthHeaders()
-                            });
-                            if (!response.ok) throw new Error('Failed to delete tag');
-                            
+                            await fetch(`${apiBaseUrl}/tags/${tag.id}`, { method: 'DELETE', headers: getAuthHeaders() });
                             fetchTags();
                             fetchAndRenderTagsForModal();
                         } catch (error) {
-                            console.error('Error deleting tag:', error);
                             alert('태그 삭제에 실패했습니다.');
                         }
                     }
                 });
 
-                // 수정 이벤트 리스너 (span 더블클릭)
                 tagNameSpan.addEventListener('dblclick', () => {
                     const currentName = tagNameSpan.textContent;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.value = currentName;
-                    li.replaceChild(input, tagNameSpan);
+                    controls.replaceChild(input, tagNameSpan);
                     input.focus();
 
                     const saveTagChanges = async () => {
                         const newName = input.value.trim();
                         if (!newName || newName === currentName) {
-                            li.replaceChild(tagNameSpan, input);
+                            controls.replaceChild(tagNameSpan, input);
                             return;
                         }
-
                         try {
-                            const response = await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
+                            await fetch(`${apiBaseUrl}/tags/${tag.id}`, {
                                 method: 'PUT',
                                 headers: getAuthHeaders(),
                                 body: JSON.stringify({ name: newName })
                             });
-
-                            const result = await response.json();
-
-                            if (!response.ok) {
-                                throw new Error(result.message || 'Failed to update tag');
-                            }
-                            
                             fetchTags();
                             fetchAndRenderTagsForModal();
                         } catch (error) {
-                            console.error('Error updating tag:', error);
                             alert(`태그 수정 실패: ${error.message}`);
-                            li.replaceChild(tagNameSpan, input);
+                            controls.replaceChild(tagNameSpan, input);
                         }
                     };
-
                     input.addEventListener('blur', saveTagChanges);
                     input.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter') input.blur();
-                        if (e.key === 'Escape') li.replaceChild(tagNameSpan, input);
+                        if (e.key === 'Escape') controls.replaceChild(tagNameSpan, input);
                     });
                 });
             });
         };
+
+        fetchTodos({});
+        fetchTags();
+        if (document.getElementById('filter-all')) {
+            updateActiveFilter(document.getElementById('filter-all'));
+        }
+
+        todoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const todoInput = document.getElementById('todo-input');
+            const content = todoInput.value.trim();
+            if (!content) return;
+            await fetch(`${apiBaseUrl}/todos`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ content })
+            });
+            todoInput.value = '';
+            fetchTodos(currentFilter);
+        });
     }
 });

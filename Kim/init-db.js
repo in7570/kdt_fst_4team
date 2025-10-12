@@ -66,6 +66,7 @@ const initializeDatabase = async () => {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT,
                 name VARCHAR(255) NOT NULL,
+                color VARCHAR(7) DEFAULT '#cccccc',
                 UNIQUE (user_id, name),
                 FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
             );

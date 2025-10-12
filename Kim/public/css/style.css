@@ -529,6 +529,49 @@ main {
     font-weight: bold;
 }
 
+/* --- 태그 색상 팔레트 --- */
+.tag-color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.color-palette {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    width: 150px; /* 5개씩 2줄로 표시되도록 너비 조정 */
+    z-index: 1100; /* 모달 위에 표시 */
+}
+
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    margin: 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    border: 1px solid #999;
+}
+
+.color-swatch.disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
+
 /* 숨김 클래스 */
 .hidden {
     display: none;

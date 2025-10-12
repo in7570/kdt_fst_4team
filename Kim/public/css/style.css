@@ -145,10 +145,25 @@ header h1 {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     width: 150px;
     text-align: center;
+    z-index: 100;
 }
 
 .user-profile .dropdown.show {
     display: block;
+}
+
+.user-profile .dropdown a {
+    display: block;
+    padding: 8px 12px;
+    margin-top: 5px;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.user-profile .dropdown a:hover {
+    background-color: #f0f0f0;
 }
 
 main {

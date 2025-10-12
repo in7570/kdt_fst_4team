@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- 로그아웃 기능 (최우선 실행) ---
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        });
+    }
 
     // --- 회원 관리 ---
     const loginForm = document.getElementById('login-form');
@@ -152,8 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = '/login.html';
                 } else {
                     alert(result.message);
-                }
-            } catch (error) {
+                }            } catch (error) {
                 console.error('비밀번호 변경 중 오류:', error);
                 alert('비밀번호 변경 중 오류가 발생했습니다.');
             }
@@ -162,238 +170,230 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 메인 페이지 (투두리스트) ---
     const todoForm = document.getElementById('todo-form');
-    const todoList = document.getElementById('todo-list');
-    const tagForm = document.getElementById('tag-form');
-    const tagList = document.getElementById('tag-list');
-    const logoutBtn = document.getElementById('logout-btn');
-    const userNicknameSpan = document.getElementById('user-nickname');
-    const userProfileImg = document.getElementById('user-profile-img');
-    const dropdown = document.querySelector('.user-profile .dropdown');
+    if (document.body.contains(todoForm)) {
+        const todoList = document.getElementById('todo-list');
+        const tagForm = document.getElementById('tag-form');
+        const tagList = document.getElementById('tag-list');
+        const userNicknameSpan = document.getElementById('user-nickname');
+        const userProfileImg = document.getElementById('user-profile-img');
+        const dropdown = document.querySelector('.user-profile .dropdown');
 
-    if (userProfileImg) {
-        userProfileImg.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        });
-    }
-
-    window.addEventListener('click', (e) => {
-        if (dropdown && dropdown.classList.contains('show')) {
-            dropdown.classList.remove('show');
+        if (userProfileImg) {
+            userProfileImg.addEventListener('click', (e) => {
+                e.stopPropagation(); // 드롭다운 토글 시 이벤트 전파를 막아 window 리스너에 닿지 않게 함
+                dropdown.classList.toggle('show');
+            });
         }
-    });
 
-    // 할 일 목록 렌더링 함수
-    const renderTodos = (todos) => {
-        if (!todoList) return;
-        todoList.innerHTML = ''; // 목록 초기화
-        todos.forEach(todo => {
-            const li = document.createElement('li');
-            li.dataset.id = todo.id;
-            if (todo.is_completed) {
-                li.classList.add('checked');
-            }
-
-            // innerHTML을 사용하여 복잡한 구조를 한 번에 생성
-            li.innerHTML = `
-                <div class="checkbox-container">
-                    <div class="checkbox"></div>
-                    <span>${todo.content}</span>
-                </div>
-                <button class="delete-btn">×</button>
-            `;
-
-            // 체크박스 클릭 시 완료/미완료 처리
-            const checkboxContainer = li.querySelector('.checkbox-container');
-            checkboxContainer.addEventListener('click', async (e) => {
-                // 이벤트 전파를 막아 span의 이벤트 리스너가 반응하지 않도록 함
-                e.stopPropagation(); 
-                
-                const isCompleted = !li.classList.contains('checked');
-                try {
-                    const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                        method: 'PUT',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({ is_completed: isCompleted })
-                    });
-                    if (!response.ok) throw new Error('Todo update failed');
-                    // 성공 시 UI 즉시 업데이트 후, 서버와 동기화
-                    li.classList.toggle('checked');
-                } catch (error) {
-                    console.error('Error updating todo:', error);
-                    // 실패 시 원래 상태로 되돌리거나 사용자에게 알림
-                    alert('항목 업데이트에 실패했습니다.');
-                }
-            });
-
-            // 삭제 버튼 이벤트 리스너 추가
-            const deleteBtn = li.querySelector('.delete-btn');
-            deleteBtn.addEventListener('click', async () => {
-                if (confirm('정말 삭제하시겠습니까?')) {
-                    await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
-                        method: 'DELETE',
-                        headers: getAuthHeaders()
-                    });
-                    li.remove(); // UI에서 즉시 삭제
-                }
-            });
-
-            // 할 일 내용(span) 더블클릭 시 수정 기능
-            const span = li.querySelector('span');
-
-            // span을 클릭했을 때 이벤트가 부모로 전파되는 것을 막아 완료 처리를 방지
-            span.addEventListener('click', (e) => {
+        // 드롭다운 자체를 클릭했을 때 이벤트 전파를 막아, 내부 링크 클릭이 window 리스너를 발동시키지 않게 함
+        if (dropdown) {
+            dropdown.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
+        }
 
-            span.addEventListener('dblclick', () => {
-                const currentContent = span.textContent;
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = currentContent;
-                
-                // 수정 input 클릭 시 이벤트 버블링을 막아 완료 처리를 방지
-                input.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
+        // 화면의 다른 곳을 클릭하면 드롭다운을 닫음
+        window.addEventListener('click', () => {
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        });
 
-                // span을 input으로 교체
-                span.style.display = 'none';
-                checkboxContainer.appendChild(input);
-                input.focus();
+        // 할 일 목록 렌더링 함수
+        const renderTodos = (todos) => {
+            if (!todoList) return;
+            todoList.innerHTML = ''; // 목록 초기화
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.dataset.id = todo.id;
+                if (todo.is_completed) {
+                    li.classList.add('checked');
+                }
 
-                const saveChanges = async () => {
-                    const newContent = input.value.trim();
+                // innerHTML을 사용하여 복잡한 구조를 한 번에 생성
+                li.innerHTML = `
+                    <div class="checkbox-container">
+                        <div class="checkbox"></div>
+                        <span>${todo.content}</span>
+                    </div>
+                    <button class="delete-btn">×</button>
+                `;
+
+                // 체크박스 클릭 시 완료/미완료 처리
+                const checkboxContainer = li.querySelector('.checkbox-container');
+                checkboxContainer.addEventListener('click', async (e) => {
+                    e.stopPropagation(); 
                     
-                    // 내용이 비어있거나 변경되지 않았으면 원래대로 복구
-                    if (!newContent || newContent === currentContent) {
-                        input.remove();
-                        span.style.display = '';
-                        return;
-                    }
-
-                    // 서버에 변경사항 전송
+                    const isCompleted = !li.classList.contains('checked');
                     try {
                         const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                             method: 'PUT',
                             headers: getAuthHeaders(),
-                            body: JSON.stringify({ content: newContent })
+                            body: JSON.stringify({ is_completed: isCompleted })
                         });
-                        if (!response.ok) throw new Error('Update failed');
-                        
-                        // 성공 시 UI 업데이트
-                        span.textContent = newContent;
+                        if (!response.ok) throw new Error('Todo update failed');
+                        li.classList.toggle('checked');
                     } catch (error) {
-                        console.error('Error updating content:', error);
-                        alert('내용 수정에 실패했습니다.');
-                    } finally {
-                        // input을 다시 span으로 복구
-                        input.remove();
-                        span.style.display = '';
-                    }
-                };
-
-                // input 포커스가 해제되거나 Enter 키를 누르면 저장
-                input.addEventListener('blur', saveChanges);
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        input.blur(); // blur 이벤트를 트리거하여 저장 로직 실행
-                    } else if (e.key === 'Escape') {
-                        // Esc 키를 누르면 수정 취소
-                        input.remove();
-                        span.style.display = '';
+                        console.error('Error updating todo:', error);
+                        alert('항목 업데이트에 실패했습니다.');
                     }
                 });
+
+                // 삭제 버튼 이벤트 리스너 추가
+                const deleteBtn = li.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                            method: 'DELETE',
+                            headers: getAuthHeaders()
+                        });
+                        li.remove();
+                    }
+                });
+
+                // 할 일 내용(span) 더블클릭 시 수정 기능
+                const span = li.querySelector('span');
+                span.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                span.addEventListener('dblclick', () => {
+                    const currentContent = span.textContent;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = currentContent;
+                    
+                    input.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+
+                    span.style.display = 'none';
+                    checkboxContainer.appendChild(input);
+                    input.focus();
+
+                    const saveChanges = async () => {
+                        const newContent = input.value.trim();
+                        
+                        if (!newContent || newContent === currentContent) {
+                            input.remove();
+                            span.style.display = '';
+                            return;
+                        }
+
+                        try {
+                            const response = await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
+                                method: 'PUT',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({ content: newContent })
+                            });
+                            if (!response.ok) throw new Error('Update failed');
+                            span.textContent = newContent;
+                        } catch (error) {
+                            console.error('Error updating content:', error);
+                            alert('내용 수정에 실패했습니다.');
+                        } finally {
+                            input.remove();
+                            span.style.display = '';
+                        }
+                    };
+
+                    input.addEventListener('blur', saveChanges);
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        } else if (e.key === 'Escape') {
+                            input.remove();
+                            span.style.display = '';
+                        }
+                    });
+                });
+
+                todoList.appendChild(li);
             });
+        };
 
-            todoList.appendChild(li);
-        });
-    };
+        // 태그 목록 렌더링 함수
+        const renderTags = (tags) => {
+            if (!tagList) return;
+            tagList.querySelectorAll('li.user-tag').forEach(li => li.remove());
 
-    // 태그 목록 렌더링 함수
-    const renderTags = (tags) => {
-        if (!tagList) return;
-        // 기존의 사용자 태그만 삭제 (고정 필터는 유지)
-        tagList.querySelectorAll('li.user-tag').forEach(li => li.remove());
+            tags.forEach(tag => {
+                const li = document.createElement('li');
+                li.classList.add('user-tag');
 
-        tags.forEach(tag => {
-            const li = document.createElement('li');
-            li.classList.add('user-tag'); // 사용자 태그 식별용 클래스 추가
+                const a = document.createElement('a');
+                a.href = '#';
+                a.textContent = tag.name;
+                a.dataset.tagId = tag.id;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentFilter = { tag_id: tag.id };
+                    fetchTodos(currentFilter);
+                    updateActiveFilter(a);
+                });
 
-            const a = document.createElement('a');
-            a.href = '#';
-            a.textContent = tag.name;
-            a.dataset.tagId = tag.id;
-            a.addEventListener('click', (e) => {
-                e.preventDefault();
-                currentFilter = { tag_id: tag.id };
-                fetchTodos(currentFilter);
-                updateActiveFilter(a);
+                li.appendChild(a);
+                tagList.appendChild(li);
             });
+        };
 
-            li.appendChild(a);
-            tagList.appendChild(li);
-        });
-    };
+        let currentFilter = {};
 
-    let currentFilter = {}; // 현재 필터 상태 저장
+        // 할 일 목록 불러오기 (필터 객체 사용)
+        const fetchTodos = async (filter = {}) => {
+            currentFilter = filter;
+            let url = new URL(`${window.location.origin}${apiBaseUrl}/todos`);
+            Object.keys(filter).forEach(key => url.searchParams.append(key, filter[key]));
 
-    // 할 일 목록 불러오기 (필터 객체 사용)
-    const fetchTodos = async (filter = {}) => {
-        currentFilter = filter;
-        let url = new URL(`${window.location.origin}${apiBaseUrl}/todos`);
-        Object.keys(filter).forEach(key => url.searchParams.append(key, filter[key]));
+            try {
+                const response = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.status === 401 || response.status === 403) {
+                    alert('인증 정보가 유효하지 않습니다. 다시 로그인해주세요.');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
 
-        try {
-            const response = await fetch(url, {
-                headers: getAuthHeaders()
-            });
-            
-            if (response.status === 401 || response.status === 403) {
-                alert('인증 정보가 유효하지 않습니다. 다시 로그인해주세요.');
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-                return;
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+                const todos = await response.json();
+                renderTodos(todos);
+            } catch (error) {
+                console.error('할 일 목록을 불러오는 데 실패했습니다:', error);
+                if (todoList) todoList.innerHTML = '<li>목록을 불러오는 데 실패했습니다.</li>';
             }
+        };
 
-            if (!response.ok) {
-                throw new Error(`API error: ${response.statusText}`);
+        // 태그 목록 불러오기
+        const fetchTags = async () => {
+            if (!tagList) return;
+            try {
+                const response = await fetch(`${apiBaseUrl}/tags`, {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+                const tags = await response.json();
+                renderTags(tags);
+            } catch (error) {
+                console.error('태그 목록을 불러오는 데 실패했습니다:', error);
             }
-            const todos = await response.json();
-            renderTodos(todos);
-        } catch (error) {
-            console.error('할 일 목록을 불러오는 데 실패했습니다:', error);
-            if (todoList) todoList.innerHTML = '<li>목록을 불러오는 데 실패했습니다.</li>';
-        }
-    };
+        };
 
-    // 태그 목록 불러오기
-    const fetchTags = async () => {
-        if (!tagList) return;
-        try {
-            const response = await fetch(`${apiBaseUrl}/tags`, {
-                headers: getAuthHeaders()
-            });
-            if (!response.ok) {
-                throw new Error(`API error: ${response.statusText}`);
+        // 활성 필터 UI 업데이트
+        const updateActiveFilter = (clickedElement) => {
+            document.querySelectorAll('.sidebar a.active').forEach(el => el.classList.remove('active'));
+            if (clickedElement) {
+                clickedElement.classList.add('active');
             }
-            const tags = await response.json();
-            renderTags(tags);
-        } catch (error) {
-            console.error('태그 목록을 불러오는 데 실패했습니다:', error);
-        }
-    };
+        };
 
-    // 활성 필터 UI 업데이트
-    const updateActiveFilter = (clickedElement) => {
-        document.querySelectorAll('.sidebar a.active').forEach(el => el.classList.remove('active'));
-        if (clickedElement) {
-            clickedElement.classList.add('active');
-        }
-    };
-
-    // 메인 페이지 전용 로직
-    if (document.body.contains(todoForm)) {
+        // 메인 페이지 전용 로직
         if (!token) {
             window.location.href = '/login.html';
             return;
@@ -402,13 +402,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = parseJwt(token);
         if (user && userNicknameSpan) {
             userNicknameSpan.textContent = (user.nickname || user.username) + ' 님';
-        }
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                localStorage.removeItem('token');
-                window.location.href = '/login.html';
-            });
         }
 
         // 태그 생성 폼 처리
@@ -430,8 +423,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!response.ok) throw new Error(result.message || 'Failed to create tag');
                     
                     tagInput.value = '';
-                    fetchTags(); // 사이드바 태그 목록 새로고침
-                    fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                    fetchTags();
+                    fetchAndRenderTagsForModal();
                 } catch (error) {
                     console.error('Error creating tag:', error);
                     alert(`태그 생성 실패: ${error.message}`);
@@ -555,9 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             });
                             if (!response.ok) throw new Error('Failed to delete tag');
                             
-                            // 성공 시 UI 동기화
-                            fetchTags(); // 사이드바 태그 목록 새로고침
-                            fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                            fetchTags();
+                            fetchAndRenderTagsForModal();
                         } catch (error) {
                             console.error('Error deleting tag:', error);
                             alert('태그 삭제에 실패했습니다.');
@@ -577,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const saveTagChanges = async () => {
                         const newName = input.value.trim();
                         if (!newName || newName === currentName) {
-                            li.replaceChild(tagNameSpan, input); // 변경 없으면 원상복구
+                            li.replaceChild(tagNameSpan, input);
                             return;
                         }
 
@@ -594,13 +586,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 throw new Error(result.message || 'Failed to update tag');
                             }
                             
-                            // 성공 시 UI 동기화
-                            fetchTags(); // 사이드바 태그 목록 새로고침
-                            fetchAndRenderTagsForModal(); // 모달 태그 목록 새로고침
+                            fetchTags();
+                            fetchAndRenderTagsForModal();
                         } catch (error) {
                             console.error('Error updating tag:', error);
                             alert(`태그 수정 실패: ${error.message}`);
-                            li.replaceChild(tagNameSpan, input); // 실패 시 원상복구
+                            li.replaceChild(tagNameSpan, input);
                         }
                     };
 

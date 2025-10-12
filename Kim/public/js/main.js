@@ -94,6 +94,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const nickname = e.target.nickname.value;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/users/find-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, nickname })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`임시 비밀번호는 ${result.tempPassword} 입니다. 로그인 후 비밀번호를 변경해주세요.`);
+                    window.location.href = '/login.html';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('비밀번호 찾기 중 오류:', error);
+                alert('비밀번호를 찾는 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = e.target['current-password'].value;
+            const newPassword = e.target['new-password'].value;
+            const newPasswordConfirm = e.target['new-password-confirm'].value;
+
+            if (newPassword !== newPasswordConfirm) {
+                alert('새 비밀번호가 일치하지 않습니다.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/users/change-password`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요.');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('비밀번호 변경 중 오류:', error);
+                alert('비밀번호 변경 중 오류가 발생했습니다.');
+            }
+        });
+    }
+
     // --- 메인 페이지 (투두리스트) ---
     const todoForm = document.getElementById('todo-form');
     const todoList = document.getElementById('todo-list');

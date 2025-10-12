@@ -81,6 +81,33 @@ router.post('/users/login', [
     }
 });
 
+// 비밀번호 찾기 (임시 비밀번호 발급)
+router.post('/users/find-password', [
+    body('username', '아이디를 입력해주세요.').isEmail().withMessage('유효한 이메일 주소를 입력해주세요.'),
+    body('nickname', '닉네임을 입력해주세요.').not().isEmpty(),
+    handleValidationErrors
+], async (req, res) => {
+    const { username, nickname } = req.body;
+    try {
+        const [users] = await pool.query('SELECT * FROM Users WHERE username = ? AND nickname = ?', [username, nickname]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: '일치하는 사용자 정보가 없습니다.' });
+        }
+
+        const user = users[0];
+        const tempPassword = Math.random().toString(36).slice(-8);
+        const hashedTempPassword = await bcrypt.hash(tempPassword, saltRounds);
+
+        await pool.query('UPDATE Users SET password = ? WHERE id = ?', [hashedTempPassword, user.id]);
+
+        res.json({ message: '임시 비밀번호가 발급되었습니다.', tempPassword });
+
+    } catch (error) {
+        console.error('비밀번호 찾기 중 오류:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
 // 로그아웃 (플레이스홀더)
 router.post('/users/logout', (req, res) => {
     res.json({ message: '로그아웃 성공' });
@@ -100,6 +127,38 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+// 비밀번호 변경
+router.put('/users/change-password', authenticateToken, [
+    body('currentPassword', '현재 비밀번호를 입력해주세요.').not().isEmpty(),
+    body('newPassword', '새 비밀번호는 8자 이상이어야 합니다.').isLength({ min: 8 }),
+    handleValidationErrors
+], async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const [users] = await pool.query('SELECT * FROM Users WHERE id = ?', [userId]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+        }
+
+        const user = users[0];
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+        await pool.query('UPDATE Users SET password = ? WHERE id = ?', [hashedNewPassword, userId]);
+
+        res.json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+
+    } catch (error) {
+        console.error('비밀번호 변경 중 오류:', error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
 
 
 // --- 투두 (Todos) API (인증 필요) ---

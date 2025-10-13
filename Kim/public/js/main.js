@@ -544,8 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ content })
             });
-            todoInput.value = '';
-            fetchTodos(currentFilter);
+            fetchTodos({});
+            updateActiveFilter(document.getElementById('filter-all'));
         });
     }
 });

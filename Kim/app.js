@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('path');
 const apiRouter = require('./routes/api');
 const initializeDatabase = require('./init-db');
-const pool = require('./db'); // graceful shutdown을 위해 pool 가져오기
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -40,20 +39,3 @@ const startServer = async () => {
 
 // 서버 시작
 startServer();
-
-// 정상 종료 처리
-const gracefulShutdown = async () => {
-    console.log('\n서버를 종료합니다...');
-    try {
-        await pool.end();
-        console.log('데이터베이스 연결 풀이 정상적으로 닫혔습니다.');
-        process.exit(0);
-    } catch (error) {
-        console.error('데이터베이스 연결 풀을 닫는 중 오류 발생:', error);
-        process.exit(1);
-    }
-};
-
-// Ctrl+C 또는 kill 명령어에 반응
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);

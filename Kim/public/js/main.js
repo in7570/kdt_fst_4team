@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.removeItem('token');
-            window.location.href = '/login.html';
+            window.location.href = MESSAGES.LOGIN_PAGE;
         });
     }
 
@@ -67,11 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     if (onSuccess) onSuccess(result);
                 } else {
-                    alert(result.message || '오류가 발생했습니다.');
+                    alert(result.message || MESSAGES.ERROR_DEFAULT);
                 }
             } catch (error) {
                 console.error(`${formId} 처리 중 오류:`, error);
-                alert('오류가 발생했습니다.');
+                alert(MESSAGES.ERROR_DEFAULT);
             }
         });
     };
@@ -84,14 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }),
         onSuccess: (result) => {
             localStorage.setItem('token', result.token);
-            window.location.href = '/index.html';
+            window.location.href = MESSAGES.LOGIN_SUCCESS_REDIRECT;
         }
     });
 
     handleFormSubmit('register-form', `${apiBaseUrl}/users/register`, {
         preSubmitValidation: (form) => {
             if (form.password.value !== form['password-confirm'].value) {
-                alert('비밀번호가 일치하지 않습니다.');
+                alert(MESSAGES.PASSWORD_MISMATCH);
                 return false;
             }
             return true;
@@ -102,8 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
             nickname: form.nickname.value
         }),
         onSuccess: () => {
-            alert('회원가입 성공! 로그인 페이지로 이동합니다.');
-            window.location.href = '/login.html';
+            alert(MESSAGES.REGISTER_SUCCESS);
+            window.location.href = MESSAGES.LOGIN_PAGE;
         }
     });
 
@@ -113,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             nickname: form.nickname.value
         }),
         onSuccess: (result) => {
-            alert(`임시 비밀번호는 ${result.tempPassword} 입니다. 로그인 후 비밀번호를 변경해주세요.`);
-            window.location.href = '/login.html';
+            alert(MESSAGES.TEMP_PASSWORD_ISSUED(result.tempPassword));
+            window.location.href = MESSAGES.LOGIN_PAGE;
         }
     });
 
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'PUT',
         preSubmitValidation: (form) => {
             if (form['new-password'].value !== form['new-password-confirm'].value) {
-                alert('새 비밀번호가 일치하지 않습니다.');
+                alert(MESSAGES.NEW_PASSWORD_MISMATCH);
                 return false;
             }
             return true;
@@ -132,9 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
             newPassword: form['new-password'].value
         }),
         onSuccess: () => {
-            alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해주세요.');
+            alert(MESSAGES.PASSWORD_CHANGE_SUCCESS);
             localStorage.removeItem('token');
-            window.location.href = '/login.html';
+            window.location.href = MESSAGES.LOGIN_PAGE;
         }
     });
 
@@ -210,13 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     li.classList.toggle('checked');
                 } catch (error) {
                     console.error('Error updating todo:', error);
-                    alert('항목 업데이트에 실패했습니다.');
+                    alert(MESSAGES.TODO_UPDATE_FAILED);
                 }
             });
 
             // 삭제 처리
             deleteBtn.addEventListener('click', async () => {
-                if (confirm('정말 삭제하시겠습니까?')) {
+                if (confirm(MESSAGES.TODO_DELETE_CONFIRM)) {
                     await fetch(`${apiBaseUrl}/todos/${todo.id}`, {
                         method: 'DELETE',
                         headers: getAuthHeaders()
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         span.textContent = newContent;
                     } catch (error) {
                         console.error('Error updating content:', error);
-                        alert('내용 수정에 실패했습니다.');
+                        alert(MESSAGES.TODO_CONTENT_UPDATE_FAILED);
                     } finally {
                         checkboxDiv.replaceChild(span, input);
                     }
@@ -314,15 +314,15 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(url, { headers: getAuthHeaders() });
                 if (response.status === 401 || response.status === 403) {
-                    alert('인증 정보가 유효하지 않습니다. 다시 로그인해주세요.');
+                    alert(MESSAGES.ERROR_UNAUTHORIZED);
                     localStorage.removeItem('token');
-                    window.location.href = '/login.html';
+                    window.location.href = MESSAGES.LOGIN_PAGE;
                     return;
                 }
                 const todos = await response.json();
                 renderTodos(todos);
             } catch (error) {
-                console.error('할 일 목록을 불러오는 데 실패했습니다:', error);
+                console.error(MESSAGES.TODO_FETCH_FAILED, error);
             }
         };
 
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tags = await response.json();
                 renderTags(tags);
             } catch (error) {
-                console.error('태그 목록을 불러오는 데 실패했습니다:', error);
+                console.error(MESSAGES.TAG_FETCH_FAILED, error);
             }
         };
 
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (!token) {
-            window.location.href = '/login.html';
+            window.location.href = MESSAGES.LOGIN_PAGE;
             return;
         }
 
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchAndRenderTagsForModal();
             } catch (error) {
                 console.error('Error creating tag:', error);
-                alert(`태그 생성 실패: ${error.message}`);
+                alert(MESSAGES.TAG_CREATE_FAILED(error.message));
             }
         });
 
@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             fetchTags();
                             fetchAndRenderTagsForModal();
                         } catch (error) {
-                            alert(`색상 변경 실패: ${error.message}`);
+                            alert(MESSAGES.TAG_COLOR_UPDATE_FAILED(error.message));
                         }
                         colorPalette.classList.add('hidden');
                     });
@@ -481,13 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalTagList.appendChild(li);
 
                 deleteBtn.addEventListener('click', async () => {
-                    if (confirm(`'${tag.name}' 태그를 정말 삭제하시겠습니까?`)) {
+                    if (confirm(MESSAGES.TAG_DELETE_CONFIRM(tag.name))) {
                         try {
                             await fetch(`${apiBaseUrl}/tags/${tag.id}`, { method: 'DELETE', headers: getAuthHeaders() });
                             fetchTags();
                             fetchAndRenderTagsForModal();
                         } catch (error) {
-                            alert('태그 삭제에 실패했습니다.');
+                            alert(MESSAGES.TAG_DELETE_FAILED);
                         }
                     }
                 });
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             fetchTags();
                             fetchAndRenderTagsForModal();
                         } catch (error) {
-                            alert(`태그 수정 실패: ${error.message}`);
+                            alert(MESSAGES.TAG_UPDATE_FAILED(error.message));
                             controls.replaceChild(tagNameSpan, input);
                         }
                     };

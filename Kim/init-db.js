@@ -88,15 +88,14 @@ const initializeDatabase = async () => {
             console.log('모든 테이블이 성공적으로 생성되었습니다.');
         }
         
-        // 사용한 연결만 풀에 반환
+        // 사용한 연결만 pool에 반환
         dbConnection.release();
-        // 공유 풀이므로 여기서 pool.end()를 호출하지 않습니다.
-        // 풀은 애플리케이션이 종료될 때 app.js에서 닫아줍니다.
+        // 공유 pool이므로 여기서 pool.end()를 호출하지 않습니다.
+        // pool은 애플리케이션이 종료될 때 app.js에서 닫아줍니다.
 
     } catch (error) {
         console.error('데이터베이스 설정 중 오류가 발생했습니다:', error);
         if (connection) await connection.end();
-        // 오류 발생 시 프로세스를 종료하여 서버가 비정상 상태로 실행되는 것을 방지
         process.exit(1);
     }
 };

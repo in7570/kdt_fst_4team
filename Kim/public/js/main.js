@@ -342,6 +342,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (clickedElement) clickedElement.classList.add('active');
         };
 
+        // 정적 필터(전체, 미완료, 완료)에 이벤트 리스너 추가
+        const setupStaticFilters = () => {
+            const filters = {
+                'filter-all': {},
+                'filter-incomplete': { is_completed: 'false' },
+                'filter-completed': { is_completed: 'true' }
+            };
+
+            for (const id in filters) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        fetchTodos(filters[id]);
+                        updateActiveFilter(element);
+                    });
+                }
+            }
+        };
+
         if (!token) {
             window.location.href = MESSAGES.LOGIN_PAGE;
             return;

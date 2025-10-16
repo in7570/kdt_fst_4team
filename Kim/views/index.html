@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TO-DO LIST</h1>
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/30" alt="User Avatar" id="user-profile-img">
+                <div class="dropdown">
+                    <p id="user-nickname"></p>
+                    <hr>
+                    <a href="/change-password.html" id="change-password-btn">비밀번호 변경</a>
+                    <a href="#" id="logout-btn">로그아웃</a>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="todo-container-wrapper">
+                <div class="prev-day-container day-container">
+                    <p>10월 17일</p>
+                </div>
+                <div class="todo-main-container">
+                    <div class="todo-header">
+                        <button class="nav-btn">&lt;</button>
+                        <h2>10월 18일</h2>
+                        <button class="nav-btn">&gt;</button>
+                    </div>
+                    <div class="sidebar">
+                        <h4>태그</h4>
+                        <ul id="tag-list">
+                            <li><a href="#" id="filter-all" class="active">전체</a></li>
+                            <li><a href="#" id="filter-today">오늘</a></li>
+                            <li><a href="#" id="filter-important">중요</a></li>
+                            <!-- 자바스크립트로 사용자 태그 목록이 여기에 렌더링됩니다. -->
+                        </ul>
+                        <hr>
+                        <button id="manage-tags-btn" class="manage-btn">태그 관리</button>
+                    </div>
+                    <div class="todo-container">
+                        <form id="todo-form" class="add-todo">
+                            <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요.">
+                            <button id="add-btn" type="submit">+</button>
+                        </form>
+                        <ul id="todo-list">
+                        </ul>
+                    </div>
+                </div>
+                <div class="next-day-container day-container">
+                    <p>10월 19일</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 태그 관리 모달 -->
+    <div id="tag-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span id="close-modal-btn" class="close-btn">&times;</span>
+            <h2>태그 관리</h2>
+            <ul id="modal-tag-list">
+                <!-- 태그 관리 목록이 여기에 렌더링됩니다. -->
+            </ul>
+            <form id="tag-form" class="add-tag-form">
+                <input type="text" id="tag-input" placeholder="새 태그 추가...">
+                <button type="submit">+</button>
+            </form>
+            <!-- 색상 팔레트 (숨김) -->
+            <div id="color-palette" class="color-palette hidden"></div>
+        </div>
+    </div>
+
+    <script src="/js/constants.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
